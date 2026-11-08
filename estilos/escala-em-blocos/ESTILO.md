@@ -4,21 +4,27 @@ id: escala-em-blocos
 Bom para: explicação narrada para Reels/Shorts/TikTok, história (bíblica, histórica) contada com números, "quanto é isso de verdade?", comparação de tamanho e quantidade, curiosidade com contador, vídeo de canal com mascote
 Clima: um mundinho de blocos ao pôr do sol, fofo e calmo, onde cada número da história vira uma quantidade que dá pra ver.
 Formato: 1080 × 1920 (9:16), 30 qps, ~130 s, **com narração** (voz guia o ritmo), sem loop
-Peça de partida: nenhuma, só a ficha
+Peça de partida: estilos/escala-em-blocos/projeto/index.html (6 s, cena de teste dos personagens, sem loop) + `projeto/personagens.js`
 Vídeo da galeria: ainda não tem (a referência é de terceiros e não é distribuída; o tile entra quando renderizarmos a nossa primeira peça)
 
 ## Como usar esta referência
 1. Ler a ficha inteira antes de desenhar. Ela é a lei da peça.
 2. Copiar o **método** (mundo de blocos, número que vira quantidade, contador, legenda palavra a palavra, ritmo). Nunca o conteúdo: tema, roteiro, personagens, mascote, nome do perfil e marca d'água são da referência e não entram.
-3. O mascote, o protagonista e o perfil são **nossos**: desenhe outros (outra forma, outra cor, outro rosto).
+3. O companheiro do herói é o **Desbravador** (no lugar do mascote laranja da referência), sempre ao lado de Jesus. Os dois estão prontos em `projeto/personagens.js`.
 
 ## Mecanismo em uma frase
-Um narrador conta uma história em frases curtas; num mundo de blocos, cada número dito vira coisa contável na tela (gente, moedas, pães, cestos) enquanto um contador sobe, e a câmera abre para mostrar a escala, sempre com um mascote pequeno ao lado do herói para dar a medida.
+Um narrador conta uma história em frases curtas; num mundo de blocos, cada número dito vira coisa contável na tela (gente, moedas, pães, cestos) enquanto um contador sobe, e a câmera abre para mostrar a escala, sempre com o Desbravador ao lado de Jesus para dar a medida.
 
 ## Estrutura medida (referência: 131,8 s, 1080 × 1920, 30 qps, com áudio)
 - **~20 cenas**, 21 cortes secos (um a cada ~6 s). Dentro de cada cena a câmera anda devagar e a legenda troca a cada 1,5 a 2 s (2 a 5 palavras).
-- Arco: **gancho** (0–9 s, herói + mascote, pergunta) → **número 1** (multidão: 5.000 → 15.000, a câmera sobe de perto até a vista aérea) → **comparação com o mundo real** ("tamanho de uma cidade de 10 mil habitantes", "44,8 % das cidades do Brasil") → **diálogo** (personagens em fila, falas na legenda) → **número 2** (dinheiro: pilha de moedas, contador 139 → 200 "dias de trabalho", chip "≈ 8 meses de salário") → **número 3** (5 pães ÷ 15 mil pessoas, chip "1 pão ÷ 3.000 pessoas") → **o milagre** (pilha de pães que sobe: 1.496 → 15.000, chip "≈ 750 kg") → **sobra** (11 → 12 cestos, "antes / depois") → **virada** (fundo esvazia, céu fica cinza, mascote "Ué...") → **frase-tese** (faixa amarela fixa no topo) → **clímax** (cruz contra o sol) → **chamada** ("COMENTA: <palavra>!") → fade escuro com o @ e o ícone (~4 s).
+- Arco: **gancho** (0–9 s, Jesus + Desbravador, pergunta) → **número 1** (multidão: 5.000 → 15.000, a câmera sobe de perto até a vista aérea) → **comparação com o mundo real** ("tamanho de uma cidade de 10 mil habitantes", "44,8 % das cidades do Brasil") → **diálogo** (personagens em fila, falas na legenda) → **número 2** (dinheiro: pilha de moedas, contador 139 → 200 "dias de trabalho", chip "≈ 8 meses de salário") → **número 3** (5 pães ÷ 15 mil pessoas, chip "1 pão ÷ 3.000 pessoas") → **o milagre** (pilha de pães que sobe: 1.496 → 15.000, chip "≈ 750 kg") → **sobra** (11 → 12 cestos, "antes / depois") → **virada** (fundo esvazia, céu fica cinza, o Desbravador estranha ("Ué...")) → **frase-tese** (faixa amarela fixa no topo) → **clímax** (cruz contra o sol) → **chamada** ("COMENTA: <palavra>!") → fade escuro com o @ e o ícone (~4 s).
 - Fecho: CTA grande com a palavra-resposta num chip laranja, segura ~4 s, escurece para o cartão do perfil.
+
+## Personagens (`projeto/personagens.js`, three.js r149)
+- **Jesus:** túnica #ece4da, faixa vermelha #c55446 do ombro direito ao quadril esquerdo, cabelo comprido #8d5c3c, barba #7a4c30, pele #e6c6aa, sandálias #9c6941. ~5,2 unidades de altura.
+- **Desbravador** (o companheiro, no papel do mascote): boné verde #28483c com faixa amarela #d2af32 e o triângulo vermelho e branco na frente; camisa cáqui #c4aa80; lenço amarelo #f0c428 em V com anel #b48c3c; distintivo azul na manga esquerda e triângulo vermelho na direita; calça e cinto verdes #26463a com fivela amarela; sapatos #221e1e; rosto com olhos pretos com brilho, sobrancelhas, bochechas rosadas #f0aa96 e sorriso. ~5 unidades de altura, cabeça grande (35 % da altura).
+- Os dois ficam lado a lado (centros a 3,1 unidades), virados 0,1 rad um para o outro. Só o chão recebe sombra; os corpos não se sombreiam (acabamento de brinquedo).
+- Pose a partir do tempo: `PERSONAGENS.pose(boneco, { andar, acenar, acenarFase, piscar, respirar, olhar })`. Piscar dura 0,14 s; aceno entra com back.out(1.6) em 0,35 s.
 
 ## Paleta (hex, amostrada dos quadros)
 - céu dia (topo → horizonte): #2c6181 → #57748a → #968a7e
@@ -54,12 +60,12 @@ Um narrador conta uma história em frases curtas; num mundo de blocos, cada núm
 - A narração manda: cada troca de legenda, cada número e cada objeto bate numa sílaba da voz. Sem voz, ninguém sabe o ritmo; grave ou gere o roteiro falado antes.
 - Corte seco entre cenas (nunca crossfade). Dentro da cena, só câmera lenta e objetos pousando.
 - Número sempre vira quantidade: se o texto diz 15.000, aparecem 15 mil bonequinhos (ou blocos que leem como isso). Instanciar, nunca um "x15000" escrito.
-- Escala por comparação: mascote/herói pequeno no canto da multidão; depois uma referência real (cidade, % do país, salário).
+- Escala por comparação: Jesus e o Desbravador pequenos no canto da multidão; depois uma referência real (cidade, % do país, salário).
 - O soco do filme é a abertura de câmera da multidão (de perto do herói até a vista aérea em ~4 s) e o "COMENTA:" final, que entra em corte seco.
 - Na virada emocional, o mundo esvazia: fundo some, céu dessatura, câmera para. O silêncio prepara o clímax.
 
 ## Movimentos de assinatura
-1. **Crane up de escala:** começa no herói + mascote, sobe até a multidão em grade inteira, contador sobe junto.
+1. **Crane up de escala:** começa em Jesus + Desbravador, sobe até a multidão em grade inteira, contador sobe junto.
 2. **Contador em card branco** com o número laranja e um chip de conversão embaixo ("≈ 8 meses de salário", "≈ 750 kg").
 3. **Pilha que cresce** (pães, moedas, cestos) em cascata, com "antes / depois" em chips.
 4. **Legenda gorda com uma palavra laranja**, 2 a 5 palavras por vez, cortando no ritmo da fala.
@@ -67,7 +73,7 @@ Um narrador conta uma história em frases curtas; num mundo de blocos, cada núm
 ## Composição
 - 9:16 com zona segura: nada importante nos 220 px de cima nem nos 380 px de baixo (interface do app); marca d'água discreta à direita a ~10 % da altura.
 - Chip de fonte/versículo sempre centrado no topo da zona segura (y ≈ 110 px em 1080 × 1920 na escala do frame).
-- Herói ocupa de 1/3 a 2/3 da altura nos closes; nas vistas abertas ele vira ponto e o mascote dá a escala.
+- Herói ocupa de 1/3 a 2/3 da altura nos closes; nas vistas abertas eles viram pontos e o Desbravador ao lado dá a escala.
 - Horizonte alto (~35 % da altura) nas cenas de multidão; baixo (~55 %) nos closes com sol.
 
 ## Com mídia
