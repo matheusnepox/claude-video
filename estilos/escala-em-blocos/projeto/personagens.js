@@ -117,8 +117,12 @@
       chapa(cab, COR.bochecha, 0.24, 0.11, lado * 0.8, 0.66, F);
     }
     g.userData.olhos = olhos;
-    chapa(cab, COR.boca, 0.42, 0.16, 0, 0.6, F);
-    chapa(cab, COR.dente, 0.3, 0.06, 0, 0.64, F + 0.01);
+    const boca = new THREE.Group();
+    boca.position.set(0, 0.6, F);
+    cab.add(boca);
+    chapa(boca, COR.boca, 0.42, 0.16, 0, 0, 0);
+    chapa(boca, COR.dente, 0.3, 0.06, 0, 0.04, 0.01);
+    g.userData.boca = boca;
     // boné: copa verde, faixa amarela, emblema de triângulo na frente
     bloco(cab, COR.bone, -1.18, 1.18, 1.82, 2.45, -1.08, 1.12);
     bloco(cab, COR.faixaBone, -1.19, 1.19, 1.75, 1.86, -1.09, 1.13);
@@ -129,7 +133,15 @@
     return g;
   }
 
-  function jesus() {
+  // jesus(opcoes): sem opções é Jesus; com { tunica, faixa: null, cabelo, barba, pele, curto } vira um discípulo
+  function jesus(op) {
+    op = op || {};
+    const COR_ = Object.assign({}, COR);
+    if (op.tunica) COR_.tunica = op.tunica;
+    if (op.cabelo) COR_.cabeloJ = op.cabelo;
+    if (op.barba) COR_.barbaJ = op.barba;
+    if (op.pele) COR_.peleJ = op.pele;
+    
     const g = new THREE.Group(), corpo = new THREE.Group();
     g.add(corpo);
     g.userData.corpo = corpo;
@@ -137,19 +149,21 @@
     const pE = new THREE.Group(), pD = new THREE.Group();
     pE.position.set(-0.45, 0.3, 0); pD.position.set(0.45, 0.3, 0);
     g.add(pE, pD);
-    for (const p of [pE, pD]) bloco(p, COR.sandalia, -0.32, 0.32, -0.3, 0, -0.3, 0.42);
+    for (const p of [pE, pD]) bloco(p, COR_.sandalia, -0.32, 0.32, -0.3, 0, -0.3, 0.42);
     g.userData.pernas = [pE, pD];
     // túnica: saia um pouco mais larga e tronco
-    bloco(corpo, COR.tunica, -1.12, 1.12, 0.3, 1.4, -0.72, 0.72);
-    bloco(corpo, COR.tunica, -1.05, 1.05, 1.4, 2.85, -0.68, 0.68);
+    bloco(corpo, COR_.tunica, -1.12, 1.12, 0.3, 1.4, -0.72, 0.72);
+    bloco(corpo, COR_.tunica, -1.05, 1.05, 1.4, 2.85, -0.68, 0.68);
     // faixa vermelha: do ombro direito ao quadril esquerdo, frente e costas
-    const fF = caixa(corpo, COR.faixaJ, 0.36, 2.9, 0.08, -0.05, 1.75, 0.72); fF.rotation.z = -0.72;
-    const fT = caixa(corpo, COR.faixaJ, 0.36, 2.9, 0.08, -0.05, 1.75, -0.72); fT.rotation.z = -0.72;
+    if (op.faixa !== null) {
+    const fF = caixa(corpo, COR_.faixaJ, 0.36, 2.9, 0.08, -0.05, 1.75, 0.72); fF.rotation.z = -0.72;
+    const fT = caixa(corpo, COR_.faixaJ, 0.36, 2.9, 0.08, -0.05, 1.75, -0.72); fT.rotation.z = -0.72;
+    }
     // braços com manga larga
     const bE = braco(corpo, -1.33, 2.8), bD = braco(corpo, 1.33, 2.8);
     for (const b of [bE, bD]) {
-      bloco(b, COR.tunica, -0.28, 0.28, -1.35, 0, -0.32, 0.32);
-      bloco(b, COR.peleJ, -0.22, 0.22, -1.75, -1.35, -0.24, 0.24);
+      bloco(b, COR_.tunica, -0.28, 0.28, -1.35, 0, -0.32, 0.32);
+      bloco(b, COR_.peleJ, -0.22, 0.22, -1.75, -1.35, -0.24, 0.24);
     }
     g.userData.bracos = [bE, bD];
     // cabeça: rosto, cabelo comprido até o ombro, barba
@@ -158,28 +172,34 @@
     corpo.add(cab);
     g.userData.cabeca = cab;
     const F = 0.98;
-    bloco(cab, COR.peleJ, -0.98, 0.98, 0.05, 2.15, -0.95, F);
-    bloco(cab, COR.cabeloJ, -1.28, 1.28, -0.3, 2.4, -1.15, -0.45);          // nuca e cabelo comprido
-    bloco(cab, COR.cabeloJ, -1.28, -0.95, -0.3, 2.4, -1.15, F + 0.06);     // lado esquerdo
-    bloco(cab, COR.cabeloJ, 0.95, 1.28, -0.3, 2.4, -1.15, F + 0.06);       // lado direito
-    bloco(cab, COR.cabeloJ, -1.28, 1.28, 2.0, 2.4, -1.15, F + 0.06);       // topo
-    bloco(cab, COR.cabeloJ, -0.98, -0.08, 1.75, 2.0, 0.6, F + 0.06);       // franja com risca no meio
-    bloco(cab, COR.cabeloJ, 0.08, 0.98, 1.75, 2.0, 0.6, F + 0.06);
+    bloco(cab, COR_.peleJ, -0.98, 0.98, 0.05, 2.15, -0.95, F);
+    const yCab = op.curto ? 0.9 : -0.3;
+    bloco(cab, COR_.cabeloJ, -1.28, 1.28, yCab, 2.4, -1.15, -0.45);          // nuca e cabelo comprido
+    bloco(cab, COR_.cabeloJ, -1.28, -0.95, yCab, 2.4, -1.15, F + 0.06);     // lado esquerdo
+    bloco(cab, COR_.cabeloJ, 0.95, 1.28, yCab, 2.4, -1.15, F + 0.06);       // lado direito
+    bloco(cab, COR_.cabeloJ, -1.28, 1.28, 2.0, 2.4, -1.15, F + 0.06);       // topo
+    bloco(cab, COR_.cabeloJ, -0.98, -0.08, 1.75, 2.0, 0.6, F + 0.06);       // franja com risca no meio
+    bloco(cab, COR_.cabeloJ, 0.08, 0.98, 1.75, 2.0, 0.6, F + 0.06);
     // barba: queixo, laterais e bigode, com a boca aberta no meio
-    bloco(cab, COR.barbaJ, -0.98, 0.98, 0.05, 0.62, 0.5, F + 0.08);
-    bloco(cab, COR.barbaJ, -0.98, -0.62, 0.62, 1.15, 0.5, F + 0.08);
-    bloco(cab, COR.barbaJ, 0.62, 0.98, 0.62, 1.15, 0.5, F + 0.08);
-    bloco(cab, COR.barbaJ, -0.5, 0.5, 0.62, 0.78, 0.5, F + 0.08);
-    chapa(cab, COR.dente, 0.5, 0.13, 0, 0.5, F + 0.08);
+    bloco(cab, COR_.barbaJ, -0.98, 0.98, 0.05, 0.62, 0.5, F + 0.08);
+    bloco(cab, COR_.barbaJ, -0.98, -0.62, 0.62, 1.15, 0.5, F + 0.08);
+    bloco(cab, COR_.barbaJ, 0.62, 0.98, 0.62, 1.15, 0.5, F + 0.08);
+    bloco(cab, COR_.barbaJ, -0.5, 0.5, 0.62, 0.78, 0.5, F + 0.08);
+    const boca = new THREE.Group();
+    boca.position.set(0, 0.5, F + 0.08);
+    cab.add(boca);
+    chapa(boca, COR_.boca, 0.5, 0.16, 0, -0.01, 0);
+    chapa(boca, COR_.dente, 0.5, 0.07, 0, 0.035, 0.01);
+    g.userData.boca = boca;
     const olhos = [];
     for (const lado of [-1, 1]) {
       const o = new THREE.Group();
       o.position.set(lado * 0.42, 1.3, F);
       cab.add(o);
-      chapa(o, COR.olho, 0.22, 0.28, 0, 0, 0);
-      chapa(o, COR.brilho, 0.07, 0.07, 0.05, 0.08, 0.02);
+      chapa(o, COR_.olho, 0.22, 0.28, 0, 0, 0);
+      chapa(o, COR_.brilho, 0.07, 0.07, 0.05, 0.08, 0.02);
       olhos.push(o);
-      chapa(cab, COR.cabeloJ, 0.36, 0.08, lado * 0.42, 1.62, F);
+      chapa(cab, COR_.cabeloJ, 0.36, 0.08, lado * 0.42, 1.62, F);
     }
     g.userData.olhos = olhos;
     return g;
@@ -204,9 +224,17 @@
     }
     const ac = o.acenar || 0;
     u.bracos[1].rotation.z = ac * 2.6 + ac * 0.25 * Math.sin((o.acenarFase || 0) * Math.PI * 2);
+    if (!ac && o.andar == null) u.bracos[1].rotation.z = 0;
+    u.bracos[0].rotation.z = 0;
     const fecha = Math.max(0.12, 1 - (o.piscar || 0));
     for (const e of u.olhos) e.scale.y = fecha;
-    if (o.olhar != null) u.cabeca.rotation.y = o.olhar;
+    u.cabeca.rotation.y = o.olhar || 0;
+    u.cabeca.rotation.x = o.baixar || 0;
+    // braços livres: [rotação x (para a frente é negativo), rotação z]
+    if (o.bracoE) { u.bracos[0].rotation.x = o.bracoE[0]; u.bracos[0].rotation.z = o.bracoE[1]; }
+    if (o.bracoD) { u.bracos[1].rotation.x = o.bracoD[0]; u.bracos[1].rotation.z = o.bracoD[1]; }
+    // boca: 0 fechada, 1 bem aberta
+    if (u.boca) u.boca.scale.y = 1 + 1.6 * (o.falar || 0);
   }
 
   window.PERSONAGENS = { COR, desbravador, jesus, pose };
