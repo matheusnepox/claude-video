@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<title>SEVEN — Sua ideia merece forma</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;700&display=swap" />
+<script src="vendor/gsap.min.js"></script>
+<script src="studio.js"></script>
+<style>
+  :root { --k: #02261C; --profundo: #043D2D; --verde: #07583F; --claro: #DCEBE3; --branco: #FFFFFF; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--profundo); }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--profundo); }
+  #tela { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; image-rendering: pixelated; }
+  #ui { position: absolute; inset: 0; color: var(--branco); }
+  #ui > div { position: absolute; white-space: nowrap; }
+  .hud { font: 700 34px 'Pixelify Sans', monospace; letter-spacing: 0.04em; color: var(--claro); text-shadow: 4px 4px 0 var(--k); }
+  .grande { font: 96px 'Press Start 2P', monospace; color: var(--claro); text-shadow: 8px 8px 0 var(--k); line-height: 1; }
+  .medio { font: 36px 'Press Start 2P', monospace; color: var(--branco); text-shadow: 4px 4px 0 var(--k); }
+  .rotulo { left: 0; top: 0; font: 700 34px 'Pixelify Sans', monospace; color: var(--claro); text-shadow: 4px 4px 0 var(--k); }
+  .nome { left: 48px; width: 208px; text-align: center; height: 48px; line-height: 50px; font: 22px 'Press Start 2P', monospace; color: var(--claro); }
+  #ui > .fala { left: 56px; width: 968px; white-space: normal; font: 500 48px/62px 'Pixelify Sans', monospace; color: var(--branco); }
+  #crisp { position: absolute; left: 60px; top: 576px; width: 960px; height: 250px; }
+  #flash { position: absolute; left: 0; top: 0; width: 1080px; height: 1504px; background: var(--branco); opacity: 0; }
+  #linhas { position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0 2px, rgba(2,38,28,0.10) 2px 4px); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="40" data-width="1080" data-height="1920">
+  <canvas id="tela" width="270" height="480"></canvas>
+  <svg id="crisp" viewBox="0 0 1190 310" style="visibility:hidden"></svg>
+  <div id="flash"></div>
+  <div id="ui"></div>
+  <div id="linhas"></div>
+  <audio id="trilha" src="assets/trilha.wav" data-start="0" data-duration="40" data-track-index="9" data-volume="1"></audio>
+</div>
+<script src="js/logo-dados.js"></script>
+<script>
+  // a logo nítida (vetor original) para o fim
+  (function () {
+    const s = document.getElementById('crisp'), L = LOGO.lockup;
+    [L.corpo, L.triangulo].concat(L.letras, L.assinatura).forEach((p) => {
+      const e = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      e.setAttribute('d', p.d); e.setAttribute('fill', '#fff'); e.setAttribute('fill-rule', 'evenodd');
+      s.appendChild(e);
+    });
+  })();
+</script>
+<script src="js/roteiro.js"></script>
+<script src="js/pixel.js"></script>
+<script src="js/jogo.js"></script>
+</body>
+</html>
