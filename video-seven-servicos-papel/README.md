@@ -8,3 +8,9 @@ Estilo: papel recortado (ficha `barco-e-montanha` / paper-world da skill), com a
 - `proj/js/cena.js`: as cenas. `proj/js/roteiro.js`: textos e tempos.
 - Locução: `ROTEIRO-LOCUCAO.md`.
 - Renderizar: `cd proj && npx hyperframes@0.8.181 render . -o ../entrega/seven-o-que-fazemos-papel-9x16.mp4 -q high`
+
+## Locução (ElevenLabs)
+- Voz: "André - Natural excitement" (biblioteca da ElevenLabs), modelo eleven_v4, gerada pelo conector da ElevenLabs.
+- `locucao/take1.mp3` (usada) e `locucao/take2.mp3` (segunda tomada).
+- `proj/mixa_voz.py` corta as 7 falas, posiciona cada uma na cena, trata a voz e abaixa a música ~9 dB durante a fala → `proj/assets/trilha-com-voz.wav`.
+- Vídeo com locução: `entrega/seven-o-que-fazemos-papel-locucao-9x16.mp4` (e `-leve`).
