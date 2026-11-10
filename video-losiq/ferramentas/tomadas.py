@@ -18,7 +18,7 @@ TOMADAS = [
     ('depois-rua', 'VID_20261110_100703.mp4', 10.8, 4.2, 'depois'),
     ('cmp-antes', 'VID_20261029_162713.mp4', 2.3, 4.2, 'antes'),
     ('cmp-depois', 'VID_20261110_100703.mp4', 0.1, 4.2, 'depois'),
-    ('placa-perto', 'VID_20261110_095244.mp4', 6.0, 3.2, 'depois'),
+    ('placa-perto', 'VID_20261110_095244.mp4', 9.0, 3.25, 'depois'),
     ('placa-angulo', 'VID_20261110_100611.mp4', 8.6, 2.6, 'depois'),
     ('baloes', 'VID_20261110_100611.mp4', 17.3, 2.65, 'depois'),
     ('entrada', 'VID_20261110_100611.mp4', 12.6, 3.0, 'depois'),
