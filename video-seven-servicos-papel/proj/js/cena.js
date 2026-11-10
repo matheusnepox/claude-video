@@ -103,7 +103,7 @@
     const icone = ICONES[sv.icone].map((d) => new Path2D(d));
     const titulos = sv.titulo.map((tx, i) => tira(tx, { tam: sv.titulo.length > 1 ? 104 : 124, peso: 700, ls: -0.02, semente: 60 + k * 3 + i }));
     const yFoto = sv.titulo.length > 1 ? 720 : 640;
-    const moldura = new P.Moldura(img(sv.foto), 900, 640, [0.5, 0.45], 20, 70 + k);
+    const quadro = new ILUSTRA.Quadro({ camadas: 'grafica', imagem: 'fachada', lampada: 'publicidade' }[sv.icone], 900, 640, C.claro, 70 + k);
     const etiquetas = sv.itens.map((tx, i) => tira(tx, { tam: 48, peso: 600, cor: C.claro, semente: 100 + k * 10 + i, padX: 0.5, padY: 0.32 }));
     const rots = etiquetas.map(() => jit() * 0.09);
     cenas.push({ ini: S0 - 0.15, cor: sv.cor === 'var(--verde)' ? C.verde : C.profundo, desenha(t) {
@@ -120,7 +120,7 @@
       });
       titulos.forEach((tt, i) => { a = P.pouso(t, S0 + 0.55 + i * 0.15, { rot: i ? 0.015 : -0.018 }); tt.desenha(ctx, 64, 400 + i * 136 + a.dy, a.rot, a.ar, a.alfa); });
       a = P.pouso(t, S0 + 0.85, { dur: 0.6, curva: 'back.out(0.8)', dist: 1100, rot: 0.025, giro: 0.12 });
-      moldura.desenha(ctx, 70, yFoto + a.dy, a.rot, a.ar, a.alfa, S.mix(1.12, 1.0, S.seg(t, S0 + 0.85, 5.2, 'sine.inOut')));
+      quadro.desenha(ctx, 70, yFoto + a.dy, a.rot, a.ar, a.alfa, t, S0 + 1.15);
       // etiquetas em fluxo, quebrando linha
       ctx.save(); let x = 64, y = yFoto + 720;
       etiquetas.forEach((e, i) => {
@@ -136,13 +136,13 @@
   // VALOR
   {
     const t1 = tira(V.linhas[0], { tam: 88, peso: 500 }), t2 = tira(V.linhas[1], { tam: 88, peso: 500 }), t3 = tira(V.linhas[2], { tam: 250, peso: 700, cor: C.claro, ls: -0.03 });
-    const fotos = V.fotos.map((src, i) => new P.Moldura(img(src), 400, 330, [0.5, 0.5], 16, 80 + i));
+    const fotos = ['grafica', 'fachada', 'publicidade', 'caixa'].map((n, i) => new ILUSTRA.Quadro(n, 400, 330, i % 2 ? C.creme : C.claro, 80 + i));
     const pos = [[70, 1010, -0.06], [560, 990, 0.05], [90, 1430, 0.04], [570, 1410, -0.05]];
     cenas.push({ ini: V.cortina, cor: C.verde, desenha(t) {
       let a = P.pouso(t, V.texto, { rot: -0.02 }); t1.desenha(ctx, 70, 330 + a.dy, a.rot, a.ar, a.alfa);
       a = P.pouso(t, V.texto + 0.15, { rot: 0.016 }); t2.desenha(ctx, 70, 470 + a.dy, a.rot, a.ar, a.alfa);
       a = P.pouso(t, V.texto + 0.5, { rot: -0.03, dist: 360, curva: 'back.out(1.8)' }); t3.desenha(ctx, 56, 610 + a.dy, a.rot, a.ar, a.alfa);
-      fotos.forEach((f, i) => { const b = P.pouso(t, V.texto + 0.75 + i * 0.16, { dur: 0.5, dist: 900, rot: pos[i][2], giro: 0.2 }); f.desenha(ctx, pos[i][0], pos[i][1] + b.dy, b.rot, b.ar, b.alfa); });
+      fotos.forEach((f, i) => { const b = P.pouso(t, V.texto + 0.75 + i * 0.16, { dur: 0.5, dist: 900, rot: pos[i][2], giro: 0.2 }); f.desenha(ctx, pos[i][0], pos[i][1] + b.dy, b.rot, b.ar, b.alfa, t, V.texto + 0.9 + i * 0.16); });
     } });
   }
   // ASSINATURA
