@@ -1,0 +1,100 @@
+[
+ {
+  "id": 1,
+  "cena": 1,
+  "quem": "D",
+  "fala": "[excited] E aí, desbravadores! Chegamos no acampamento! A primeira missão é montar a barraca... [curious] mas onde?",
+  "txt": "E aí, desbravadores! Chegamos no acampamento! A primeira missão é montar a barraca... mas onde?"
+ },
+ {
+  "id": 2,
+  "cena": 1,
+  "quem": "D",
+  "fala": "Nas especialidades de Arte de Acampar e de Acampamento Seguro, a gente aprende que o lugar certo faz toda a diferença. Anota aí: são cinco dicas!",
+  "txt": "Nas especialidades de Arte de Acampar e de Acampamento Seguro, a gente aprende que o lugar certo faz toda a diferença. Anota aí: são cinco dicas!"
+ },
+ {
+  "id": 3,
+  "cena": 2,
+  "quem": "D",
+  "fala": "Dica número um: procure um chão plano e um pouco mais alto. Nada de baixada!",
+  "txt": "Dica número um: procure um chão plano e um pouco mais alto. Nada de baixada!"
+ },
+ {
+  "id": 4,
+  "cena": 2,
+  "quem": "D",
+  "fala": "Se chover, a água escorre pra parte mais baixa... [laughs] e quem dorme lá acorda numa piscina!",
+  "txt": "Se chover, a água escorre pra parte mais baixa... e quem dorme lá acorda numa piscina!"
+ },
+ {
+  "id": 5,
+  "cena": 3,
+  "quem": "D",
+  "fala": "Dica dois: fique longe da beira do rio ou do lago. Uns sessenta metros, no mínimo.",
+  "txt": "Dica dois: fique longe da beira do rio ou do lago. Uns sessenta metros, no mínimo."
+ },
+ {
+  "id": 6,
+  "cena": 3,
+  "quem": "D",
+  "fala": "A água pode subir de repente, e perto da margem tem mais umidade e mais mosquito.",
+  "txt": "A água pode subir de repente, e perto da margem tem mais umidade e mais mosquito."
+ },
+ {
+  "id": 7,
+  "cena": 4,
+  "quem": "D",
+  "fala": "Dica três: olhe pra cima! Galho seco pode cair com o vento.",
+  "txt": "Dica três: olhe pra cima! Galho seco pode cair com o vento."
+ },
+ {
+  "id": 8,
+  "cena": 4,
+  "quem": "D",
+  "fala": "[serious] E nunca monte a barraca embaixo de uma árvore sozinha no campo: em tempestade, ela atrai raios.",
+  "txt": "E nunca monte a barraca embaixo de uma árvore sozinha no campo: em tempestade, ela atrai raios."
+ },
+ {
+  "id": 9,
+  "cena": 5,
+  "quem": "D",
+  "fala": "Dica quatro: olhe pra baixo. Tire as pedras e os gravetos, e confira se não tem formigueiro, toca de bicho ou ninho de marimbondo.",
+  "txt": "Dica quatro: olhe pra baixo. Tire as pedras e os gravetos, e confira se não tem formigueiro, toca de bicho ou ninho de marimbondo."
+ },
+ {
+  "id": 10,
+  "cena": 6,
+  "quem": "D",
+  "fala": "Dica cinco: repare no vento. A porta da barraca fica do lado contrário ao vento.",
+  "txt": "Dica cinco: repare no vento. A porta da barraca fica do lado contrário ao vento."
+ },
+ {
+  "id": 11,
+  "cena": 6,
+  "quem": "D",
+  "fala": "E a barraca fica longe da fogueira, fora do caminho da fumaça e das faíscas.",
+  "txt": "E a barraca fica longe da fogueira, fora do caminho da fumaça e das faíscas."
+ },
+ {
+  "id": 12,
+  "cena": 7,
+  "quem": "D",
+  "fala": "E o mais importante: monte só no lugar que o seu conselheiro liberou, e sempre avise onde você está.",
+  "txt": "E o mais importante: monte só no lugar que o seu conselheiro liberou, e sempre avise onde você está."
+ },
+ {
+  "id": 13,
+  "cena": 7,
+  "quem": "D",
+  "fala": "[excited] Resumindo: plano e alto, longe da água, sem galho em cima, sem bicho embaixo, e de costas pro vento. Barraca no lugar certo!",
+  "txt": "Resumindo: plano e alto, longe da água, sem galho em cima, sem bicho embaixo, e de costas pro vento. Barraca no lugar certo!"
+ },
+ {
+  "id": 14,
+  "cena": 7,
+  "quem": "D",
+  "fala": "[excited] No próximo vídeo, eu te ensino a montar a barraca. Comenta aí: qual dica você não conhecia?",
+  "txt": "No próximo vídeo, eu te ensino a montar a barraca. Comenta aí: qual dica você não conhecia?"
+ }
+]

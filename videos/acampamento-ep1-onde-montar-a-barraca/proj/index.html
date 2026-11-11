@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Anton&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="studio.js"></script>
+<script src="personagens.js"></script>
+<script src="tempos.js"></script>
+<style>
+  :root { --legenda: #fdf8fc; --contorno: #352725; --destaque: #f4b24f; --numero: #d55423; --card: #f5f6f2; --tinta: #2a2f45; --ok: #3f9a52; --nao: #d0443a; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #6a9cc8; }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Nunito', sans-serif; }
+  #ceu, canvas { position: absolute; inset: 0; }
+  canvas { width: 1080px; height: 1920px; }
+  .abs { position: absolute; }
+  #legenda { left: 70px; right: 70px; top: 600px; text-align: center; font-weight: 900; font-size: 64px; line-height: 1.12;
+    color: var(--legenda); -webkit-text-stroke: 13px var(--contorno); paint-order: stroke fill; text-shadow: 0 6px 0 var(--contorno); }
+  #legenda b { color: var(--destaque); font-weight: 900; }
+  #serie { left: 50%; top: 232px; background: rgba(42,47,69,.88); color: #fff; font-weight: 900; font-size: 30px; padding: 12px 30px 14px;
+    border-radius: 999px; white-space: nowrap; letter-spacing: .06em; }
+  #serie b { color: var(--destaque); }
+  #contador { left: 170px; width: 740px; top: 300px; text-align: center; }
+  #contador .caixa { background: var(--card); border-radius: 24px; height: 112px; display: flex; align-items: center; justify-content: center; gap: 22px;
+    color: var(--numero); font-weight: 900; font-size: 76px; box-shadow: 0 6px 0 rgba(53,39,37,.25); }
+  #contador .caixa small { font-size: 34px; color: var(--tinta); letter-spacing: .08em; }
+  #contador .rot { margin-top: 10px; color: #fff; font-weight: 800; font-size: 36px; text-shadow: 0 3px 0 rgba(53,39,37,.7); }
+  #chips { left: 40px; right: 40px; top: 470px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .chip { background: var(--card); color: var(--tinta); font-weight: 900; font-size: 34px; padding: 10px 24px 12px; border-radius: 999px;
+    box-shadow: 0 5px 0 rgba(53,39,37,.25); white-space: nowrap; }
+  .chip.on { background: var(--destaque); }
+  #especialidades { left: 0; right: 0; top: 290px; display: flex; justify-content: center; gap: 40px; }
+  .esp { width: 300px; height: 300px; border-radius: 50%; background: var(--tinta); border: 14px solid var(--destaque); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #fff; text-align: center; }
+  .esp .t { font-weight: 900; font-size: 22px; letter-spacing: .14em; color: var(--destaque); }
+  .esp .n { font-family: 'Anton', sans-serif; font-size: 50px; line-height: 1.02; }
+  .marca { width: 190px; height: 190px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 0 rgba(53,39,37,.3); margin: -95px 0 0 -95px; }
+  .marca.ok { background: var(--ok); } .marca.nao { background: var(--nao); }
+  .marca i { position: absolute; background: #fff; border-radius: 10px; }
+  .marca.nao i { width: 120px; height: 26px; } .marca.nao i:first-child { transform: rotate(45deg); } .marca.nao i:last-child { transform: rotate(-45deg); }
+  .marca.ok i:first-child { width: 58px; height: 26px; transform: translate(-30px, 18px) rotate(45deg); }
+  .marca.ok i:last-child { width: 112px; height: 26px; transform: translate(18px, -2px) rotate(-50deg); }
+  #lista { left: 90px; right: 90px; top: 250px; background: var(--card); border-radius: 30px; padding: 30px 44px 34px; box-shadow: 0 8px 0 rgba(53,39,37,.25); }
+  #lista .t { font-weight: 900; font-size: 30px; letter-spacing: .14em; color: var(--numero); text-align: center; margin-bottom: 12px; }
+  #lista .it { display: flex; align-items: center; gap: 22px; font-weight: 900; font-size: 46px; color: var(--tinta); padding: 8px 0; }
+  #lista .cx { width: 56px; height: 56px; border-radius: 14px; border: 6px solid var(--tinta); position: relative; flex: none; }
+  #lista .it.on .cx { background: var(--ok); border-color: var(--ok); }
+  #lista .it.on .cx::after { content: ''; position: absolute; left: 13px; top: 2px; width: 14px; height: 28px; border: solid #fff; border-width: 0 7px 7px 0; transform: rotate(45deg); }
+  #fim { left: 50px; right: 50px; top: 270px; text-align: center; }
+  #fim .p { display: inline-block; background: rgba(42,47,69,.88); color: #fff; font-weight: 900; font-size: 32px; letter-spacing: .12em; padding: 12px 30px 14px; border-radius: 999px; }
+  #fim .q { margin-top: 20px; font-family: 'Anton', sans-serif; font-size: 128px; line-height: .98; text-transform: uppercase; color: var(--legenda);
+    -webkit-text-stroke: 14px var(--contorno); paint-order: stroke fill; text-shadow: 0 8px 0 var(--contorno); }
+  #fim .q b { color: var(--destaque); font-weight: 400; }
+  #flash { inset: 0; background: #f4f7ff; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="107.96" data-width="1080" data-height="1920">
+  <div id="ceu"></div>
+  <canvas id="fundo" width="1080" height="1920"></canvas>
+  <canvas id="frente" width="1080" height="1920"></canvas>
+  <div id="flash" class="abs"></div>
+  <div id="marca" class="abs marca"><i></i><i></i></div>
+  <div id="serie" class="abs">ACAMPAMENTO DO DESBRAVADOR · <b>EP. 1</b></div>
+  <div id="especialidades" class="abs">
+    <div class="esp" id="esp1"><div class="t">ESPECIALIDADE</div><div class="n">ARTE DE<br>ACAMPAR</div></div>
+    <div class="esp" id="esp2"><div class="t">ESPECIALIDADE</div><div class="n">ACAMPAMENTO<br>SEGURO</div></div>
+  </div>
+  <div id="contador" class="abs"><div class="caixa"><small>DICA</small><span id="numero"></span><small id="de">/ 5</small></div><div class="rot" id="rotulo"></div></div>
+  <div id="chips" class="abs"></div>
+  <div id="lista" class="abs"><div class="t">CHECKLIST DA BARRACA</div>
+    <div class="it"><span class="cx"></span>plano e alto</div><div class="it"><span class="cx"></span>longe da água</div>
+    <div class="it"><span class="cx"></span>sem galho em cima</div><div class="it"><span class="cx"></span>sem bicho embaixo</div>
+    <div class="it"><span class="cx"></span>de costas pro vento</div></div>
+  <div id="legenda" class="abs"></div>
+  <div id="fim" class="abs"><div class="p">PRÓXIMO EPISÓDIO</div><div class="q">Como montar<br>a <b>barraca</b></div></div>
+</div>
+<script>
+(function () {
+  const S = STUDIO, P = PERSONAGENS, T = window.TEMPOS;
+  THREE.ColorManagement.legacyMode = false;
+  const $ = (id) => document.getElementById(id);
+  const F = {}; for (const f of T.falas) F[f.id] = f;
+  const L = (id) => F[id].t0, LE = (id) => F[id].t1;
+  const W = (id, w) => { const p = F[id].palavras.find((x) => x.w.toLowerCase().replace(/[^\wà-ú-]/g, '').startsWith(w)); return p ? p.t : F[id].t0; };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = (n) => S.ease(n);
+  const seg = (t, t0, d, e) => (t < t0 ? 0 : S.seg(t, t0, d, e || 'power2.out'));
+  const janela = (t, a, b, ent, sai) => seg(t, a, ent || 0.35, 'power2.out') - seg(t, b, sai || 0.35, 'power2.in');
+  const pop = (t, t0, d) => (t < t0 ? 0 : S.seg(t, t0, d || 0.35, 'back.out(1.6)'));
+  function mostra(el, p, base) { el.style.opacity = p > 0.001 ? 1 : 0; el.style.transform = (base || '') + ` scale(${0.85 + 0.15 * p})`; }
+
+  function novoR(id) {
+    const r = new THREE.WebGLRenderer({ canvas: $(id), antialias: true, alpha: true, preserveDrawingBuffer: true });
+    r.setPixelRatio(1); r.setSize(1080, 1920, false); r.outputEncoding = THREE.sRGBEncoding;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.setClearColor(0x000000, 0); return r;
+  }
+  const rFundo = novoR('fundo'), rFrente = novoR('frente');
+  const cena = new THREE.Scene(); cena.fog = new THREE.Fog(0xb8cbd8, 70, 240);
+  const cam = new THREE.PerspectiveCamera(30, 1080 / 1920, 0.1, 600);
+  const hemi = new THREE.HemisphereLight(0xd6e4f0, 0x55663a, 1.05); cena.add(hemi);
+  const sol = new THREE.DirectionalLight(0xfff2e0, 1.15); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 80 }); sol.shadow.radius = 8; sol.shadow.bias = -0.0004;
+  cena.add(sol, sol.target);
+  const preench = new THREE.DirectionalLight(0xbfd2ff, 0.25); cena.add(preench);
+  const fogoLuz = new THREE.PointLight(0xff9a4a, 0, 12, 2); cena.add(fogoLuz);
+
+  const M = (c, ex) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 1 }, ex || {}));
+  const bR = (pai, c, w, h, d, x, y, z, r) => { const m = new THREE.Mesh(P.geoArred(w, h, d, r == null ? 0.12 : r), M(c)); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; pai.add(m); return m; };
+  const rng = S.rng(31);
+
+  // ---------- mundo: grama, lago ao fundo, morros, árvores ----------
+  const matGrama = M(0x6c8a44);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(400, 70), matGrama); chao.rotation.x = -Math.PI / 2; chao.position.z = 5; chao.receiveShadow = true; cena.add(chao);
+  const matAgua = M(0x4f7a92, { roughness: 0.45 });
+  const lago = new THREE.Mesh(new THREE.PlaneGeometry(400, 300), matAgua); lago.rotation.x = -Math.PI / 2; lago.position.set(0, -0.08, -180); lago.receiveShadow = true; cena.add(lago);
+  const matMorro = M(0x5e744c, { flatShading: true });
+  for (const [x, z, w, h] of [[-80, -230, 120, 10], [60, -250, 140, 9], [160, -230, 120, 11], [-160, -240, 140, 9]]) { const m = new THREE.Mesh(new THREE.ConeGeometry(w / 2, h, 5, 1), matMorro); m.scale.z = 0.25; m.position.set(x, h / 2 - 0.4, z); cena.add(m); }
+  function arvore(x, z, s, seca) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); cena.add(g);
+    bR(g, seca ? 0x8a7a6a : 0x6b4a32, 0.7, 4, 0.7, 0, 2, 0, 0.12);
+    if (!seca) { bR(g, 0x4f7a3c, 3.4, 2.4, 3.4, 0, 4.6, 0, 0.5); bR(g, 0x5c8a46, 2.4, 1.8, 2.4, 0.3, 6.0, 0.2, 0.45); }
+    return g;
+  }
+  for (let i = 0; i < 26; i++) { const x = -60 + i * 6 + rng() * 3, z = -26 + rng() * 4; if (Math.abs(x - 20) < 10) continue; arvore(x, z, 0.9 + rng() * 0.5, false); }
+  for (let i = 0; i < 60; i++) { const b = bR(cena, 0xa3b26a, 0.5, 0.5, 0.5, -40 + rng() * 120, 0.25, -18 + rng() * 34, 0.1); if (Math.abs(b.position.x) < 8 && b.position.z > -6) b.position.x += 16; }
+
+  // barraca: prisma triangular arredondado, porta na frente (+z local)
+  function barraca(cor) {
+    const g = new THREE.Group(), w = 3.2, h = 2.3, d = 3.6;
+    const ang = Math.atan2(h, w / 2), lado = Math.hypot(h, w / 2);
+    for (const s of [-1, 1]) { const p = bR(g, cor, lado, 0.14, d, s * w / 4, h / 2, 0, 0.06); p.rotation.z = -s * ang; }
+    const tri = new THREE.Shape(); tri.moveTo(-w / 2, 0); tri.lineTo(w / 2, 0); tri.lineTo(0, h); tri.closePath();
+    const fundo = new THREE.Mesh(new THREE.ShapeGeometry(tri), M(cor)); fundo.position.z = -d / 2 + 0.02; fundo.rotation.y = Math.PI; g.add(fundo);
+    const porta = new THREE.Shape(); porta.moveTo(-w / 2 + 0.1, 0); porta.lineTo(w / 2 - 0.1, 0); porta.lineTo(0, h - 0.15); porta.closePath();
+    const fr = new THREE.Mesh(new THREE.ShapeGeometry(porta), M(0x2f4a5a)); fr.position.z = d / 2 - 0.05; g.add(fr);
+    const ab = new THREE.Shape(); ab.moveTo(-0.55, 0); ab.lineTo(0.55, 0); ab.lineTo(0, 1.3); ab.closePath();
+    const ent = new THREE.Mesh(new THREE.ShapeGeometry(ab), M(0x18242c)); ent.position.z = d / 2 - 0.03; g.add(ent);
+    bR(g, 0x3b3b36, 3.8, 0.06, 4.2, 0, 0.03, 0, 0.02);
+    g.traverse((o) => { if (o.isMesh) { o.castShadow = true; } });
+    return g;
+  }
+
+  // ---------- base: platô (bom) e baixada (ruim) ----------
+  const plato = bR(cena, 0x76944a, 12, 0.7, 10, 0, 0.35, -1, 0.35);
+  const BASEY = 0.7;
+  const BX = -10.5; // baixada
+  bR(cena, 0x5a7a3a, 6, 0.25, 7, BX, -0.1, -1, 0.3);
+  for (const [x, z, w, d] of [[BX - 4, -1, 2.2, 8], [BX, -5.4, 8, 2.2]]) bR(cena, 0x6c8a44, w, 1.0, d, x, 0.3, z, 0.6);
+  const poca = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 7.4), M(0x5b86a0, { roughness: 0.3, transparent: true, opacity: 0.85 })); poca.rotation.x = -Math.PI / 2; poca.position.set(BX, 0.05, -1); cena.add(poca);
+  const barracaBoa = barraca(0xe07a3a); cena.add(barracaBoa);
+  const barracaRuim = barraca(0xe07a3a); cena.add(barracaRuim);
+  // placa da área de barracas
+  const placa = new THREE.Group(); placa.position.set(4.6, BASEY, 2.6); cena.add(placa);
+  bR(placa, 0x6b4a32, 0.3, 2.4, 0.3, 0, 1.2, 0, 0.06); bR(placa, 0xb08a5a, 2.6, 1.3, 0.2, 0, 2.3, 0.1, 0.1);
+  { const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d'); x.fillStyle = '#b08a5a'; x.fillRect(0, 0, 512, 256);
+    x.fillStyle = '#2a2f45'; x.font = '900 64px Nunito, sans-serif'; x.textAlign = 'center'; x.fillText('ÁREA DE', 256, 105); x.fillText('BARRACAS', 256, 185);
+    const tx = new THREE.CanvasTexture(c); tx.encoding = THREE.sRGBEncoding; placa.userData.tex = tx; placa.userData.cv = c;
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 1.15), new THREE.MeshStandardMaterial({ map: tx, roughness: 1 })); pl.position.set(0, 2.3, 0.215); placa.add(pl); }
+  // pedras, gravetos, formigueiro, toca, marimbondo (no lugar da barraca boa)
+  const sujeira = [];
+  for (let i = 0; i < 10; i++) { const pedra = i < 6; const m = bR(cena, pedra ? 0x8e8a80 : 0x6b4a32, pedra ? 0.45 : 1.1, pedra ? 0.3 : 0.12, pedra ? 0.4 : 0.12, -2.2 + rng() * 4, BASEY + 0.15, -3 + rng() * 4, 0.08); m.rotation.y = rng() * 3; sujeira.push({ m, x: m.position.x, z: m.position.z, a: rng() * 6.28 }); }
+  const formig = new THREE.Mesh(new THREE.ConeGeometry(0.9, 0.9, 7), M(0xa0703a, { flatShading: true })); formig.position.set(-4.2, BASEY + 0.45, 1.6); formig.castShadow = true; cena.add(formig);
+  const toca = new THREE.Mesh(new THREE.CircleGeometry(0.45, 20), M(0x1d1712)); toca.rotation.x = -Math.PI / 2; toca.position.set(-4.6, BASEY + 0.01, -3.2); cena.add(toca);
+  bR(cena, 0x4f7a3c, 1.6, 1.4, 1.4, -5.2, BASEY + 0.7, -4.6, 0.4);
+  const ninho = bR(cena, 0x9a8466, 0.6, 0.8, 0.6, -4.5, BASEY + 0.95, -4.1, 0.25);
+  // fogueira e bandeira (vento soprando para +x)
+  const FX = 7.5, FZ = 1.5;
+  for (let i = 0; i < 4; i++) bR(cena, 0x5a3e2a, 1.6, 0.25, 0.25, FX, BASEY + 0.13, FZ, 0.05).rotation.y = i * Math.PI / 4;
+  const chamas = [bR(cena, 0xe8743b, 0.7, 0.8, 0.7, FX, BASEY + 0.6, FZ, 0.15), bR(cena, 0xf4b24f, 0.4, 0.55, 0.4, FX, BASEY + 1.05, FZ, 0.12)];
+  chamas.forEach((c) => { c.material = new THREE.MeshBasicMaterial({ color: c.material.color }); c.castShadow = false; });
+  for (let i = 0; i < 7; i++) bR(cena, 0x7a7a72, 0.4, 0.3, 0.4, FX + Math.cos(i / 7 * 6.28) * 1.1, BASEY + 0.15, FZ + Math.sin(i / 7 * 6.28) * 1.1, 0.1);
+  const fumaca = []; for (let i = 0; i < 9; i++) { const m = bR(cena, 0xd8d8d2, 0.7, 0.7, 0.7, 0, 0, 0, 0.3); m.material = M(0xd8d8d2, { transparent: true, opacity: 0.8 }); m.castShadow = false; fumaca.push(m); }
+  const faiscas = []; for (let i = 0; i < 10; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.12), new THREE.MeshBasicMaterial({ color: 0xffb04a })); cena.add(m); faiscas.push(m); }
+  const mastro = new THREE.Group(); mastro.position.set(3.2, BASEY, -4.4); cena.add(mastro);
+  bR(mastro, 0x8a8a86, 0.15, 5, 0.15, 0, 2.5, 0, 0.04);
+  const bandeira = []; for (let i = 0; i < 5; i++) { const m = bR(mastro, i % 2 ? 0xf2c12a : 0x24463a, 0.5, 0.9, 0.06, 0.3 + i * 0.48, 4.5, 0, 0.03); bandeira.push(m); }
+  const ventos = []; for (let i = 0; i < 8; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.06, 0.06), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })); cena.add(m); ventos.push(m); }
+  const barracaFumaca = barraca(0xe07a3a); cena.add(barracaFumaca);
+
+  // ---------- beira do lago (x = 22) ----------
+  const LX = 22, LZ = -27;
+  const praia = bR(cena, 0xc9b07a, 20, 0.2, 6, LX, 0.0, LZ + 1, 0.2);
+  const barracaMargem = barraca(0xe07a3a); cena.add(barracaMargem);
+  const barracaLonge = barraca(0xe07a3a); cena.add(barracaLonge);
+  const regua = new THREE.Group(); cena.add(regua);
+  for (let i = 0; i < 12; i++) { const m = bR(regua, i % 2 ? 0xffffff : 0xf4b24f, 0.35, 0.08, 1.05, 0, 0.12, i * 1.05, 0.03); m.castShadow = false; }
+  const mosquitos = []; for (let i = 0; i < 14; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), new THREE.MeshBasicMaterial({ color: 0x1a1a1a })); cena.add(m); mosquitos.push(m); }
+
+  // ---------- galho seco e árvore sozinha (x = 45 e 70) ----------
+  const GX = 45;
+  const seca = arvore(GX, -4, 1.6, true);
+  const galho = new THREE.Group(); galho.position.set(GX + 0.5, 6.2, -4); cena.add(galho);
+  bR(galho, 0x8a7a6a, 4.2, 0.4, 0.4, 2.0, 0, 0, 0.1); bR(galho, 0x8a7a6a, 1.4, 0.25, 0.25, 3.2, 0.5, 0, 0.08).rotation.z = 0.6;
+  const barracaGalho = barraca(0xe07a3a); cena.add(barracaGalho);
+  const SX = 72;
+  const sozinha = arvore(SX, -6, 1.7, false);
+  const barracaRaio = barraca(0xe07a3a); cena.add(barracaRaio);
+  const raio = new THREE.Group(); cena.add(raio);
+  { let x = 0, y = 26; for (let i = 0; i < 6; i++) { const nx = x + (i % 2 ? 1.4 : -1.2), ny = y - 3.6; const len = Math.hypot(nx - x, ny - y);
+    const m = new THREE.Mesh(new THREE.BoxGeometry(0.45, len, 0.45), new THREE.MeshBasicMaterial({ color: 0xfff6b0, fog: false })); m.position.set((x + nx) / 2, (y + ny) / 2, 0); m.rotation.z = Math.atan2(nx - x, ny - y) * -1; raio.add(m); x = nx; y = ny; } }
+  raio.position.set(SX + 0.5, 0, -6);
+  const chuva = []; for (let i = 0; i < 70; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.9, 0.04), new THREE.MeshBasicMaterial({ color: 0xcfe2ef, transparent: true, opacity: 0.75 })); cena.add(m); chuva.push({ m, x: rng(), y: rng(), z: rng() }); }
+
+  // ---------- Desbravador ----------
+  const desb = P.desbravador(); cena.add(desb);
+  const matsD = []; desb.traverse((o) => { if (o.material && !matsD.includes(o.material)) matsD.push(o.material); });
+
+  // ---------- climas ----------
+  const CLIMA = {
+    dia: { ceu: ['#4f86b8', '#86afcf', '#d9e4dc'], fog: 0xc6d4d8, hemi: [0xdfeaf4, 0x5a6e3e, 1.1], sol: [0xfff2e0, 1.2] },
+    chuva: { ceu: ['#56616c', '#76808a', '#a4aaae'], fog: 0x8a9298, hemi: [0xb6c0c8, 0x4a5440, 0.9], sol: [0xd8dce0, 0.5] },
+    tempestade: { ceu: ['#2a3140', '#434c5a', '#6a707a'], fog: 0x4c5260, hemi: [0x8a94a6, 0x303828, 0.7], sol: [0xb0b8c8, 0.35] },
+  };
+  function clima(n) {
+    const c = CLIMA[n]; $('ceu').style.background = `linear-gradient(180deg, ${c.ceu[0]} 0%, ${c.ceu[1]} 42%, ${c.ceu[2]} 56%)`;
+    cena.fog.color.set(c.fog); hemi.color.set(c.hemi[0]); hemi.groundColor.set(c.hemi[1]); hemi.intensity = c.hemi[2]; sol.color.set(c.sol[0]); sol.intensity = c.sol[1];
+  }
+
+  // ---------- planos ----------
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const PL = [];
+  const plano = (t, cl, de, para, oDe, oPara, foco, dof, ondeD) => PL.push({ t, clima: cl, de, para, olhaDe: oDe, olhaPara: oPara || oDe, foco: foco || V(0, 0, 0), dof: dof || 0, d: ondeD || 'base' });
+  const D0 = V(2.2, BASEY, 3.4);
+  const close = (t, dof) => plano(t, 'dia', V(D0.x - 0.4, 4.6, D0.z + 13.5), V(D0.x - 0.2, 4.6, D0.z + 12.4), V(D0.x, 6.1, D0.z), null, V(0, 0, 0), dof == null ? 8 : dof, 'vlog');
+  const medio = (t, dof) => plano(t, 'dia', V(D0.x - 0.6, 4.2, D0.z + 19), V(D0.x - 0.3, 4.2, D0.z + 17.5), V(D0.x - 0.2, 6.6, D0.z), null, V(0, 0, 0), dof == null ? 4 : dof, 'vlog');
+  plano(0, 'dia', V(-2, 10, 34), V(-1, 8, 30), V(0, 2.5, 0), V(0, 2.8, 0), V(0, 0, 0), 0, 'chegando');
+  close(L(1) + 0.6);
+  medio(L(2));
+  close(W(2, 'anota') - 0.1);
+  // dica 1
+  close(L(3) - 0.6);
+  plano(W(3, 'procure'), 'dia', V(-5, 11, 32), V(-5, 10, 29), V(-5.5, 1.0, -1), V(-5.2, 1.0, -1), V(-5, 0, -1), 0, 'aponta1');
+  plano(L(4), 'chuva', V(BX + 2, 5, 16), V(BX + 1.5, 4.4, 14), V(BX, 1.2, -1), V(BX, 1.0, -1), V(BX, 0, -1), 0, 'fora');
+  // dica 2
+  close(L(5) - 0.8);
+  plano(W(5, 'fique'), 'dia', V(LX + 5, 12, LZ + 40), V(LX + 4, 11, LZ + 38), V(LX - 1.5, 0.5, LZ + 7), V(LX - 1.5, 0.5, LZ + 8), V(LX - 1, 0, LZ + 8), 0, 'fora');
+  plano(L(6), 'chuva', V(LX - 1, 5.5, LZ + 19), V(LX - 1.5, 5.2, LZ + 17.5), V(LX - 3, 0.6, LZ), V(LX - 3, 0.6, LZ), V(LX - 3, 0, LZ), 0, 'fora');
+  // dica 3
+  close(L(7) - 0.8);
+  plano(W(7, 'olhe'), 'dia', V(GX + 1, 2.2, 13), V(GX + 1, 2.4, 11.5), V(GX + 1.5, 3.5, -4), V(GX + 2, 7.5, -4), V(GX, 0, -4), 0, 'galho');
+  plano(L(8), 'tempestade', V(SX + 2, 4.5, 24), V(SX + 1.5, 4.2, 21), V(SX, 4.5, -6), V(SX, 5.0, -6), V(SX, 0, -6), 0, 'fora');
+  // dica 4
+  close(L(9) - 0.8);
+  plano(W(9, 'tire'), 'dia', V(-2.2, 7.5, 16), V(-2.4, 7, 14.5), V(-2.2, BASEY, -1), V(-2.6, BASEY, -1.5), V(-2, 0, -1), 0, 'limpa');
+  // dica 5
+  close(L(10) - 0.8);
+  plano(W(10, 'repare'), 'dia', V(2, 6, 26), V(1.5, 5.6, 24), V(1.5, 2.6, 0), V(1.5, 2.6, 0), V(2, 0, 0), 0, 'vento');
+  plano(L(11), 'dia', V(8, 6, 25), V(7.5, 5.6, 23), V(8.2, 1.8, 0), V(8.2, 1.8, 0), V(7, 0, 0), 0, 'vento');
+  // final
+  medio(L(12) - 0.6, 3);
+  plano(L(13), 'dia', V(1, 3.8, 20), V(0.6, 3.8, 18.5), V(0.6, 6.4, 0), null, V(0, 0, 0), 3, 'lista');
+  close(L(14), 6);
+  plano(LE(14) + 0.3, 'dia', V(0, 3.4, 30), V(0, 3.8, 26), V(0, 6.8, 0), null, V(0, 0, 0), 0, 'tchau');
+  window.__PL = PL;
+  const planoEm = (t) => { let i = 0; while (i + 1 < PL.length && PL[i + 1].t <= t) i++; return i; };
+
+  const boca = (t) => { const a = T.boca.D; return a[clamp(Math.floor(t * T.fps), 0, a.length - 1)] || 0; };
+  const bocaSuave = (t) => { let s = 0; for (let k = -6; k <= 0; k++) s += boca(t + k / T.fps); return s / 7; };
+  const piscar = (t) => { const c = (t + 1.3) % 3.7; return Math.max(0, 1 - Math.abs(c - 3.5) / 0.07); };
+  const falaEm = (t) => T.falas.find((f) => t >= f.t0 - 0.05 && t <= f.t1 + 0.05);
+
+  const DICAS = [[L(3) - 0.6, LE(4) + 0.3, '1', 'chão plano e alto'], [L(5) - 0.8, LE(6) + 0.3, '2', 'longe da água'], [L(7) - 0.8, LE(8) + 0.3, '3', 'olhe pra cima'],
+    [L(9) - 0.8, LE(9) + 0.3, '4', 'olhe pra baixo'], [L(10) - 0.8, LE(11) + 0.3, '5', 'repare no vento']];
+  const CHIPS = [
+    { t0: W(5, 'uns'), t1: LE(5) + 0.2, itens: [['60 m no mínimo', W(5, 'sessenta')]] },
+    { t0: W(9, 'formigueiro'), t1: LE(9) + 0.3, itens: [['formigueiro', W(9, 'formigueiro')], ['toca', W(9, 'toca')], ['marimbondo', W(9, 'marimbondo')]] },
+    { t0: W(12, 'conselheiro'), t1: LE(12) + 0.3, itens: [['lugar liberado', W(12, 'conselheiro')], ['avise onde está', W(12, 'avise')]] },
+  ];
+  // marcas de certo / errado sobre o mundo: [início, fim, 'ok'|'nao', objeto]
+  const MARCAS = [
+    [W(3, 'procure') + 0.3, W(3, 'alto') - 0.1, 'nao', barracaRuim], [W(3, 'alto'), LE(3) + 0.2, 'ok', barracaBoa],
+    [W(4, 'piscina') - 0.2, LE(4) + 0.3, 'nao', barracaRuim],
+    [W(5, 'longe'), W(5, 'uns'), 'nao', barracaMargem], [W(5, 'sessenta') + 0.3, LE(5) + 0.2, 'ok', barracaLonge],
+    [W(7, 'cair') + 0.4, LE(7) + 0.2, 'nao', barracaGalho], [W(8, 'raios') + 0.3, LE(8) + 0.3, 'nao', barracaRaio],
+    [W(10, 'contrário') - 0.2, LE(10) + 0.2, 'ok', barracaBoa], [W(11, 'fumaça') - 0.3, W(11, 'faíscas') + 0.5, 'nao', barracaFumaca], [W(11, 'faíscas') + 0.5, LE(11) + 0.3, 'ok', barracaBoa],
+  ];
+  const ITENS = [W(13, 'plano'), W(13, 'longe'), W(13, 'galho'), W(13, 'bicho'), W(13, 'costas')];
+  const legenda = $('legenda'), chipsEl = $('chips');
+  let ultHtml = null, ultChips = -1, ultDica = null;
+  const tmp = new THREE.Vector3();
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = S.play(function render(t) {
+    const ip = planoEm(t), pl = PL[ip], fimPl = ip + 1 < PL.length ? PL[ip + 1].t : S.D;
+    const p = ease('sine.inOut')(clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1));
+    clima(pl.clima);
+    cam.position.lerpVectors(pl.de, pl.para, p); cam.lookAt(tmp.lerpVectors(pl.olhaDe, pl.olhaPara, p));
+    sol.position.set(pl.foco.x - 5, 22, pl.foco.z + 12); sol.target.position.copy(pl.foco); preench.position.set(pl.foco.x + 8, 6, pl.foco.z + 8);
+    $('fundo').style.filter = pl.dof ? `blur(${pl.dof}px)` : 'none';
+
+    // ---------- barracas por momento ----------
+    barracaBoa.position.set(-1, BASEY, -1.2);
+    const virar = seg(t, W(10, 'porta'), 0.8, 'power2.inOut');
+    barracaBoa.rotation.y = S.mix(-Math.PI / 2, Math.PI / 2, virar);  // a porta passa para o lado contrário ao vento (+x)
+    if (t < W(10, 'porta')) barracaBoa.rotation.y = 0.0;
+    barracaBoa.visible = (t > W(3, 'alto') - 0.2 && t < LE(4) + 0.5) || t > L(10) - 1;
+    barracaRuim.position.set(BX, 0.05, -1); barracaRuim.visible = t > W(3, 'procure') && t < LE(4) + 1;
+    barracaFumaca.position.set(FX + 2.9, BASEY, FZ - 2.2); barracaFumaca.rotation.y = -0.3; barracaFumaca.visible = t > L(11) - 0.2 && t < W(11, 'faíscas') + 0.6;
+    barracaMargem.position.set(LX - 3, 0.12, LZ + 1.2); barracaMargem.rotation.y = 0.3;
+    barracaLonge.position.set(LX - 1.5, 0, LZ + 16.2); barracaLonge.rotation.y = -0.2; barracaLonge.visible = t > W(5, 'sessenta') - 0.3;
+    barracaGalho.position.set(GX + 2.4, 0, -4); barracaGalho.rotation.y = 0.2;
+    barracaRaio.position.set(SX + 0.4, 0, -3.2); barracaRaio.rotation.y = -0.2;
+    // fantasma piscando quando é errado
+    // ---------- chuva e água ----------
+    const chovendo = (t > L(4) - 0.2 && t < LE(4) + 0.6) || (t > L(6) - 0.2 && t < LE(6) + 0.6) || (t > L(8) - 0.2 && t < LE(8) + 0.6);
+    const sobe = seg(t, W(4, 'água'), 2.2, 'power1.inOut');
+    poca.position.y = 0.05 + 0.75 * sobe; poca.visible = t > L(4) - 0.2 && t < LE(4) + 1;
+    barracaRuim.rotation.z = sobe * 0.06 * Math.sin(t * 2);
+    const cheia = seg(t, W(6, 'subir'), 1.6, 'power1.inOut');
+    lago.position.y = -0.08 + 0.55 * cheia * (t < LE(6) + 1 ? 1 : 0);
+    regua.position.set(LX - 1.5, 0.05, LZ + 2.3); regua.visible = t > W(5, 'sessenta') - 0.3 && t < LE(5) + 0.5;
+    regua.scale.z = clamp((t - W(5, 'sessenta') + 0.3) / 0.8, 0.01, 1);
+    chuva.forEach((c, i) => {
+      c.m.visible = chovendo;
+      if (!chovendo) return;
+      const yy = 14 - ((c.y * 14 + t * 22) % 14);
+      c.m.position.set(pl.foco.x - 9 + c.x * 18, yy, pl.foco.z - 6 + c.z * 16);
+    });
+    mosquitos.forEach((m, i) => { m.visible = t > W(6, 'mosquito') - 0.3 && t < LE(6) + 0.6; const a = t * (3 + i * 0.3) + i; m.position.set(LX - 3 + Math.cos(a) * (0.9 + i * 0.07), 1.6 + Math.sin(a * 1.7) * 0.5, LZ + 1.2 + Math.sin(a) * 0.9); });
+    // ---------- galho e raio ----------
+    const cai = clamp((t - W(7, 'cair')) / 0.7, 0, 1);
+    galho.position.y = 6.2 - 5.9 * cai * cai; galho.rotation.z = -0.9 * cai;
+    const r0 = W(8, 'raios');
+    raio.visible = (t > r0 && t < r0 + 0.12) || (t > r0 + 0.2 && t < r0 + 0.3);
+    let flash = 0; if (t > r0 && t < r0 + 0.5) flash = Math.max(0, 0.8 - (t - r0) * 2.4);
+    $('flash').style.opacity = flash;
+    // ---------- limpeza do chão ----------
+    sujeira.forEach((s, i) => { const k = clamp((t - W(9, 'tire') - i * 0.06) / 0.6, 0, 1); s.m.position.set(s.x + Math.cos(s.a) * 7 * k, BASEY + 0.15 + 3 * Math.sin(k * Math.PI), s.z + Math.sin(s.a) * 7 * k); s.m.visible = k < 1; });
+    const real = (w) => 1 + 0.25 * Math.max(0, Math.sin(clamp((t - W(9, w)) / 0.5, 0, 1) * Math.PI));
+    formig.scale.setScalar(real('formigueiro')); toca.scale.setScalar(real('toca')); ninho.scale.setScalar(real('marimbondo'));
+    // ---------- vento, fumaça, fogo ----------
+    const fl = 1 + 0.25 * Math.sin(t * 13) + 0.15 * Math.sin(t * 7.3); chamas[0].scale.set(1, fl, 1); chamas[1].scale.set(1, 2 - fl, 1);
+    fogoLuz.position.set(FX, BASEY + 1.4, FZ); fogoLuz.intensity = 1.2 * fl;
+    bandeira.forEach((m, i) => { m.position.z = 0.25 * Math.sin(t * 6 - i * 0.9) * (i / 4); m.rotation.y = 0.3 * Math.sin(t * 6 - i * 0.9); });
+    ventos.forEach((m, i) => { const vis = t > L(10) - 0.8 && t < LE(11) + 0.5; m.visible = vis; const k = ((t * 0.6 + i * 0.137) % 1); m.position.set(-10 + k * 28, BASEY + 1.5 + (i % 4) * 1.1, -3 + (i % 3) * 3); m.material.opacity = 0.7 * Math.sin(k * Math.PI); });
+    fumaca.forEach((m, i) => { const k = ((t * 0.35 + i / fumaca.length) % 1); m.position.set(FX + k * 9, BASEY + 1.2 + k * 3.5, FZ - 0.6 * k); m.scale.setScalar(0.6 + k * 1.6); m.material.opacity = 0.75 * (1 - k); });
+    faiscas.forEach((m, i) => { const k = ((t * 0.8 + i * 0.1) % 1); m.position.set(FX + k * 6 + 0.3 * Math.sin(i * 7 + t * 5), BASEY + 1.0 + k * 3 + Math.sin(k * 3.14) * 1.2, FZ + 0.3 * Math.cos(i * 3)); m.visible = k < 0.85; });
+
+    // ---------- Desbravador ----------
+    const gD = bocaSuave(t), bD = boca(t);
+    let pos = D0.clone(), rotY = 0, andar = null, bDir = null, bEsq = null, olhar = 0, baixar = 0, sobr = 0, arreg = 0, inclin = 0;
+    if (pl.d === 'chegando') { const k = ease('power2.out')(clamp((t - 0.1) / 1.6, 0, 1)); pos.set(S.mix(14, D0.x, k), BASEY, D0.z + 2 * (1 - k)); rotY = k < 1 ? -1.2 * (1 - k) : 0; andar = k < 1 ? t * 3.2 : null; }
+    if (pl.d === 'aponta1') { pos.set(1.2, BASEY, 4.2); rotY = -0.9; bDir = null; bEsq = { x: -1.5, z: 0.3, cx: -0.1, cz: 0 }; olhar = 0.4; }
+    if (pl.d === 'lago') { pos.set(LX + 5.5, 0, LZ + 15); rotY = -2.4; bEsq = { x: -1.5, z: 0.2, cx: -0.1, cz: 0 }; }
+    if (pl.d === 'galho') { pos.set(GX - 1.4, 0, -1.2); rotY = 0.5; baixar = -0.45 * seg(t, W(7, 'olhe'), 0.4); arreg = seg(t, W(7, 'cair'), 0.2) - seg(t, W(7, 'cair') + 1.2, 0.4); bEsq = { x: -2.6, z: 0.2, cx: -0.2, cz: 0 }; }
+    if (pl.d === 'fora') pos.set(500, 0, 500);
+    if (pl.d === 'limpa') { pos.set(1.4, BASEY, 0.8); rotY = -1.0; baixar = 0.3; const v = Math.sin(t * 9); bDir = { x: -1.2 + 0.4 * v, z: 0.2, cx: -0.6, cz: 0 }; bEsq = { x: -1.2 - 0.4 * v, z: 0.2, cx: -0.6, cz: 0 }; }
+    if (pl.d === 'vento') { pos.set(-6, BASEY, 2.4); rotY = 0.7; bDir = { x: -1.4, z: 0.4, cx: -0.1, cz: 0 }; }
+    if (pl.d === 'lista') { pos.set(2.6, BASEY, 3.2); rotY = -0.15; const ok = clamp((t - ITENS[0]) / (ITENS[4] - ITENS[0] + 1.2), 0, 1); bDir = { x: -0.4, z: 1.3, cx: 0, cz: 1.9 * (t > W(13, 'barraca') ? 1 : 0) }; }
+    if (pl.d === 'tchau') { pos.set(2.2, BASEY, 3.4); bDir = { x: 0, z: 2.6 + 0.25 * Math.sin(t * 9), cx: 0, cz: 0.3 }; }
+    if (pl.d === 'vlog') {
+      // vlog: fala para a câmera, gesticula; animado nas falas 1, 2 e 14
+      const lado = Math.floor(t / 2.3) % 2;
+      if (gD > 0.18) { const g = { x: -0.6 * gD, z: 0.15 * gD, cx: -1.1 * gD, cz: 0 }; if (lado) bDir = g; else bEsq = g; }
+      if (t > W(2, 'cinco') - 0.1 && t < LE(2) + 0.2) { bDir = { x: -0.3, z: 1.2, cx: 0, cz: 1.6 }; }  // mão aberta, "cinco!"
+      if (t > W(12, 'mais') - 0.2 && t < LE(12)) { bDir = { x: -1.0, z: 0.1, cx: -1.4, cz: 0 }; inclin = 0.08; }   // dedo em riste
+      sobr = janela(t, L(1) + 4.5, L(1) + 6.5, 0.2, 0.3) * 0.8;
+      inclin += 0.05 * Math.sin(t * 0.9);
+    }
+    desb.position.copy(pos); desb.rotation.y = rotY;
+    const pulo = Math.sin(clamp((t - W(1, 'chegamos')) / 0.5, 0, 1) * Math.PI) * 0.5 + Math.sin(clamp((t - W(13, 'barraca')) / 0.5, 0, 1) * Math.PI) * 0.5;
+    if (pl.d === 'vlog' || pl.d === 'lista') desb.position.y += pulo;
+    if (andar != null) desb.position.y += 0.12 * Math.abs(Math.sin(t * 3.2 * Math.PI));
+    P.pose(desb, { andar, respirar: S.wave(t, 40), falar: bD, fase: t, piscar: piscar(t), olhar, baixar, inclinar: inclin, sobr, arregalar: arreg, bD: bDir, bE: bEsq, balancar: Math.sin(t * 1.3) });
+
+    // ---------- desenha ----------
+    if (pl.dof > 0) {
+      for (const m of matsD) { m.colorWrite = false; m.depthWrite = false; }
+      rFundo.render(cena, cam);
+      for (const m of matsD) { m.colorWrite = true; m.depthWrite = true; }
+      const outros = cena.children.filter((o) => o !== desb && !o.isLight); outros.forEach((o) => { o.userData.v = o.visible; o.visible = false; });
+      rFrente.render(cena, cam); outros.forEach((o) => { o.visible = o.userData.v; });
+      $('frente').style.display = 'block';
+    } else { rFundo.render(cena, cam); $('frente').style.display = 'none'; }
+
+    // ---------- textos ----------
+    const f = falaEm(t);
+    let html = ''; if (f) { const c = f.chunks.find((c) => t >= c.t0 && t < c.t1); if (c) html = c.html; }
+    if (html !== ultHtml) { legenda.innerHTML = html; ultHtml = html; }
+    mostra($('serie'), t < L(2) ? pop(t, 0.2, 0.4) : 0, 'translateX(-50%)');
+    const espOn = t >= W(2, 'arte') - 0.1 && t < W(2, 'anota') - 0.1;
+    mostra($('esp1'), espOn ? pop(t, W(2, 'arte') - 0.1, 0.4) : 0); mostra($('esp2'), espOn ? pop(t, W(2, 'acampamento') - 0.1, 0.4) : 0);
+    $('especialidades').style.opacity = espOn ? 1 : 0;
+    const dz = DICAS.find((x) => t >= x[0] && t < x[1]);
+    const cincoOn = t >= W(2, 'cinco') - 0.1 && t < LE(2) + 0.4;
+    if (cincoOn) { $('numero').textContent = '5'; $('de').textContent = 'S'; $('rotulo').textContent = 'para escolher o lugar da barraca'; }
+    else if (dz && dz[2] !== ultDica) { $('numero').textContent = dz[2]; $('de').textContent = '/ 5'; $('rotulo').textContent = dz[3]; }
+    ultDica = dz ? dz[2] : null;
+    mostra($('contador'), cincoOn ? pop(t, W(2, 'cinco') - 0.1, 0.35) : (dz ? pop(t, dz[0], 0.35) : 0));
+    const ci = CHIPS.findIndex((c) => t >= c.t0 && t < c.t1);
+    if (ci !== ultChips) { chipsEl.innerHTML = ci >= 0 ? CHIPS[ci].itens.map((x) => `<span class="chip">${x[0]}</span>`).join('') : ''; ultChips = ci; }
+    if (ci >= 0) [...chipsEl.children].forEach((el, k) => { const t0 = CHIPS[ci].itens[k][1]; mostra(el, pop(t, t0, 0.28)); el.classList.toggle('on', t >= t0 && t < t0 + 0.6); });
+    chipsEl.style.top = dz ? '480px' : '320px';
+    // marca certo/errado projetada sobre a barraca
+    const mk = MARCAS.find((m) => t >= m[0] && t < m[1] && m[3].visible);
+    const el = $('marca');
+    if (mk) {
+      tmp.copy(mk[3].position); tmp.y += 4.2; tmp.project(cam);
+      el.className = 'abs marca ' + mk[2]; el.style.left = ((tmp.x + 1) / 2 * 1080) + 'px'; el.style.top = ((1 - tmp.y) / 2 * 1920) + 'px';
+      const k = pop(t, mk[0], 0.3); el.style.opacity = tmp.z < 1 ? 1 : 0; el.style.transform = `scale(${0.4 + 0.6 * k}) rotate(${mk[2] === 'nao' ? 6 * Math.sin(t * 30) * (1 - k) : 0}deg)`;
+    } else el.style.opacity = 0;
+    // checklist
+    const listaOn = t >= L(13) - 0.1 && t < LE(13) + 0.4;
+    mostra($('lista'), listaOn ? pop(t, L(13) - 0.1, 0.4) : 0);
+    [...document.querySelectorAll('#lista .it')].forEach((it, k) => it.classList.toggle('on', t >= ITENS[k]));
+    let topo = 600; if (dz || cincoOn) topo = 640; if (ci >= 0) topo = dz ? 760 : 470; if (espOn) topo = 660; if (listaOn) topo = 960;
+    legenda.style.top = topo + 'px';
+    const fimOn = t >= LE(14) + 0.3; mostra($('fim'), fimOn ? pop(t, LE(14) + 0.3, 0.45) : 0); if (fimOn) legenda.innerHTML = '';
+  }, { loop: false });
+})();
+</script>
+</body>
+</html>
