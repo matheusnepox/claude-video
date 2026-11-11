@@ -7,7 +7,7 @@
   const div = (parent, css, html) => { const e = document.createElement('div'); Object.assign(e.style, { position: 'absolute' }, css || {}); if (html != null) e.innerHTML = html; parent.appendChild(e); return e; };
   const seg = (t, a, d, e) => S.seg(t, a, d, e || 'expo.out');
   const L = LOGO;
-  const C = { gancho: 0, livro: 3.6, sumario: 7.4, destaques: 12.6, chamada: 21.0, fim: 26.0 };
+  const C = { gancho: 0, livro: 7.6, sumario: 15.0, destaques: 24.0, chamada: 38.2, fim: 47.5 };
   const svgLogo = (qual, cor, larg) => {
     const lock = qual === 'lockup';
     const partes = lock ? [L.lockup.corpo, L.lockup.triangulo].concat(L.lockup.letras, L.lockup.assinatura) : [L.simbolo.corpo, L.simbolo.triangulo];
@@ -29,8 +29,8 @@
   const topo = div(root, { left: '410px', top: '100px', width: '260px' }, svgLogo('lockup', '#F3EFE3', 260));
 
   // ---------- 1. gancho ----------
-  const h1 = T('PARE DE ANUNCIAR', Object.assign({ top: '560px' }, centro, fonte(700, 96)));
-  const h2 = T('NO ESCURO.', Object.assign({ top: '670px' }, centro, fonte(700, 168, '#DCEBE3'), { letterSpacing: '-0.03em' }));
+  const h1 = T('VOCÊ AINDA ANUNCIA', Object.assign({ top: '560px' }, centro, fonte(700, 84)));
+  const h2 = T('NO ESCURO?', Object.assign({ top: '670px' }, centro, fonte(700, 148, '#DCEBE3'), { letterSpacing: '-0.03em' }));
   const p1 = T('E-BOOK COMPLETO POR APENAS', Object.assign({ top: '600px' }, centro, fonte(600, 46, '#F3EFE3'), { letterSpacing: '0.12em' }));
   const preco = div(root, Object.assign({ top: '690px' }, centro, fonte(700, 250, '#DCEBE3'), { letterSpacing: '-0.04em' }));
   const p2 = T('Tráfego Pago na Prática', Object.assign({ top: '990px' }, centro, fonte(700, 70)));
@@ -65,8 +65,8 @@
     { img: 'p-09.jpg', cap: 'CAPÍTULO 01', tit: 'A conta de quanto investir', foco: 0.62 },
     { img: 'p-20.jpg', cap: 'CAPÍTULO 04', tit: 'Os 6 objetivos (e qual escolher)', foco: 0.3 },
     { img: 'p-23.jpg', cap: 'CAPÍTULO 04', tit: 'O criativo que faz parar de rolar', foco: 0.55 },
-    { img: 'p-26.jpg', cap: 'CAPÍTULO 05', tit: 'As métricas que importam', foco: 0.3 },
-    { img: 'p-38.jpg', cap: 'CAPÍTULO 07', tit: 'Campanha para o WhatsApp', foco: 0.35 },
+    { img: 'p-27.jpg', cap: 'CAPÍTULO 05', tit: 'As métricas que importam', foco: 0.25 },
+    { img: 'p-39.jpg', cap: 'CAPÍTULO 07', tit: 'Campanha para o WhatsApp', foco: 0.3 },
     { img: 'p-43.jpg', cap: 'CAPÍTULO 08', tit: 'Checklist antes de ativar', foco: 0.2 },
   ];
   const D0 = C.destaques, DD = (C.chamada - C.destaques) / DEST.length;
@@ -113,17 +113,18 @@
     topo.style.opacity = Math.min(1, t / 0.5).toFixed(2);
     vis(topo, t < C.chamada);
     // 1. gancho: "pare de anunciar no escuro" e o preço
-    mostra(h1, t, 0.1, 1.45); mostra(h2, t, 0.3, 1.5, 0.5);
-    h2.i.style.transform += ` scale(${S.mix(1.25, 1, seg(t, 0.3, 0.5, 'back.out(2)')).toFixed(3)})`;
-    mostra(p1, t, 1.7, C.livro - 0.3);
-    const pp = seg(t, 1.85, 0.75, 'power2.out');
+    mostra(h1, t, 0.15, 2.25); mostra(h2, t, 0.75, 2.3, 0.5);
+    h2.i.style.transform += ` scale(${(S.mix(1.25, 1, seg(t, 0.75, 0.5, 'back.out(2)')) + 0.06 * S.seg(t, 1.0, 1.3, 'none')).toFixed(4)})`;
+    h1.i.style.transform += ` translateX(${(-24 * S.seg(t, 0.4, 1.9, 'none')).toFixed(1)}px)`;
+    mostra(p1, t, 2.6, C.livro - 0.3);
+    const pp = seg(t, 3.2, 1.8, 'power2.out');
     const valor = (34.39 * pp).toFixed(2).replace('.', ',');
     preco.textContent = 'R$ ' + valor;
-    const ppIn = seg(t, 1.85, 0.5, 'back.out(1.8)') - seg(t, C.livro - 0.3, 0.3, 'power3.in');
-    vis(preco, t >= 1.85 && t < C.livro);
-    preco.style.transform = `scale(${S.mix(0.6, 1, Math.max(0, ppIn)).toFixed(3)}) ${t > 2.6 ? `rotate(${(-2 * seg(t, 2.6, 0.3, 'back.out(3)')).toFixed(2)}deg)` : ''}`;
+    const ppIn = seg(t, 3.0, 0.5, 'back.out(1.8)') - seg(t, C.livro - 0.3, 0.3, 'power3.in');
+    vis(preco, t >= 3.0 && t < C.livro);
+    preco.style.transform = `scale(${(S.mix(0.6, 1, Math.max(0, ppIn)) * (1 + 0.025 * Math.sin(Math.max(0, t - 5) * 3))).toFixed(4)}) ${t > 5.0 ? `rotate(${(-2 * seg(t, 5.0, 0.3, 'back.out(3)')).toFixed(2)}deg)` : ''}`;
     preco.style.opacity = Math.min(1, Math.max(0, ppIn) * 2).toFixed(2);
-    mostra(p2, t, 2.6, C.livro - 0.25); mostra(p3, t, 2.8, C.livro - 0.25);
+    mostra(p2, t, 5.2, C.livro - 0.25); mostra(p3, t, 5.6, C.livro - 0.25);
     // 2 e 5. livro
     const lv = livroEstado(t);
     vis(palco, lv.on);
@@ -135,7 +136,7 @@
     selo.style.top = (lv.y - 80) + 'px';
     selo.style.transform = `scale(${Math.max(0, ps).toFixed(3)}) rotate(${(12 * Math.max(0, ps)).toFixed(1)}deg)`;
     fichas.forEach((f, i) => {
-      const p = seg(t, C.livro + 1.1 + i * 0.25, 0.6, 'back.out(1.8)') - seg(t, C.sumario - 0.3, 0.25, 'power3.in');
+      const p = seg(t, C.livro + [2.3, 3.4, 4.4][i], 0.6, 'back.out(1.8)') - seg(t, C.sumario - 0.3, 0.25, 'power3.in');
       vis(f, p > 0.01 && t < C.sumario);
       f.style.left = fichasPos[i][0] + 'px'; f.style.top = fichasPos[i][1] + 'px';
       f.style.transform = `translateY(${((1 - Math.max(0, p)) * 60).toFixed(1)}px) scale(${S.mix(0.7, 1, Math.max(0, p)).toFixed(3)})`;
@@ -145,12 +146,12 @@
     mostra(tSum, t, C.sumario + 0.1, C.destaques - 0.3);
     const psu = seg(t, C.sumario, 0.8, 'expo.out') - seg(t, C.destaques - 0.3, 0.3, 'power3.in');
     vis(sumario, t >= C.sumario && t < C.destaques);
-    sumario.style.transform = `translateY(${((1 - Math.max(0, psu)) * 1300).toFixed(1)}px) rotate(${(-1.5 + Math.sin(t) * 0.6).toFixed(2)}deg)`;
-    const k = Math.min(7, Math.max(0, (t - C.sumario - 1.0) / 0.5));
+    sumario.style.transform = `translateY(${((1 - Math.max(0, psu)) * 1300 - 30 * S.seg(t, C.sumario, 9, 'none')).toFixed(1)}px) rotate(${(-1.5 + Math.sin(t * 1.3) * 1.1).toFixed(2)}deg) scale(${(1 + 0.05 * S.seg(t, C.sumario, 9, 'sine.inOut')).toFixed(4)})`;
+    const k = Math.min(7, Math.max(0, (t - C.sumario - 2.4) / 0.85));
     const ki = Math.floor(k), kf = k - ki;
     const yF = S.mix(LIN[ki], LIN[Math.min(7, ki + 1)], S.ease('expo.inOut')(Math.min(1, kf * 2.2)));
     faixa.style.top = (yF - 26) + 'px';
-    vis(faixa, t >= C.sumario + 0.9);
+    vis(faixa, t >= C.sumario + 2.3);
     // 4. destaques: as páginas entram uma sobre a outra
     cards.forEach((c, i) => {
       const p = seg(t, c.t0, 0.55, 'expo.out');
