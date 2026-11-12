@@ -1,0 +1,11 @@
+{
+ "video": "../entrega/anuncio-acm-v2-papel-9x16.mp4",
+ "duration": 28.0,
+ "change_steps": 272,
+ "longest_gap_s": 0.5,
+ "dead_gaps": [],
+ "hard_cuts": [],
+ "too_short_shots": [],
+ "flashes": [],
+ "pass": true
+}
