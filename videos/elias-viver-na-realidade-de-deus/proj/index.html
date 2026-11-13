@@ -214,9 +214,9 @@
   const V = (x, y, z) => new THREE.Vector3(x, y, z);
   const PL = [];
   const pl_ = (t, cl, de, para, oDe, oPara, foco, dof) => PL.push({ t, clima: cl, de, para, olhaDe: oDe, olhaPara: oPara || oDe, foco: foco || V(0, 0, 0), dof: dof || 0 });
-  const dois = [V(0.8, 4.2, 18), V(0.3, 4.2, 16.5), V(0, 4.5, 0)];
-  const closeJ = [V(-0.5, 4.3, 14.5), V(-0.8, 4.3, 13.5), V(JX, 5.9, 0)];
-  const closeD = [V(0.9, 3.8, 14), V(1.2, 3.8, 13.0), V(DX, 5.5, 0)];
+  const dois = [V(0.6, 4.2, 17.6), V(0.45, 4.2, 17.0), V(0, 4.5, 0)];
+  const closeJ = [V(-0.6, 4.3, 14.2), V(-0.7, 4.3, 13.85), V(JX, 5.9, 0)];
+  const closeD = [V(1.0, 3.8, 13.7), V(1.1, 3.8, 13.35), V(DX, 5.5, 0)];
   const P_ = (t, pre, dof) => pl_(t, 'tarde', pre[0], pre[1], pre[2], null, null, dof == null ? 8 : dof);
   // cena 1
   pl_(0, 'tarde', V(0, 3.4, 30), V(0, 3.4, 26), V(0, 5.4, 0));
@@ -290,7 +290,7 @@
   window.__timelines = window.__timelines || {};
   window.__timelines["main"] = S.play(function render(t) {
     const ip = planoEm(t), pl = PL[ip], fimPl = ip + 1 < PL.length ? PL[ip + 1].t : S.D;
-    const p = ease('sine.inOut')(clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1));
+    const lin = clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1); const p = 0.6 * lin + 0.4 * ease('sine.inOut')(lin);
     clima(pl.clima);
     cam.position.lerpVectors(pl.de, pl.para, p); cam.lookAt(tmp.lerpVectors(pl.olhaDe, pl.olhaPara, p));
     sol.position.set(pl.foco.x - 5, 22, pl.foco.z + 12); sol.target.position.copy(pl.foco); preench.position.set(pl.foco.x + 8, 6, pl.foco.z + 8);
@@ -312,19 +312,19 @@
     let dBD = null, dBE = null;
     if (animado > 0.01) { const k = clamp(animado, 0, 1); dBD = { x: -0.15 * k, z: 1.35 * k, cx: 0, cz: 1.9 * k }; dBE = { x: -0.15 * k, z: 1.35 * k, cx: 0, cz: 1.9 * k }; }
     else if (sem_graca > 0.01) dBD = { x: -2.2 * sem_graca, z: 0.6 * sem_graca, cx: -1.6 * sem_graca, cz: 0 };
-    else if (gD > 0.2) dBD = { x: -0.5 * gD, z: 0.15 * gD, cx: -0.9 * gD, cz: 0 };
+    else if (gD > 0.3) dBD = { x: -0.3 * gD, z: 0.1 * gD, cx: -0.55 * gD, cz: 0 };
     P.pose(desb, { andar: andando ? t * 2.4 : null, respirar: S.wave(t, 50), falar: bD, fase: t, piscar: cansado > 0.5 ? 0.35 + piscar(t, 1.9) * 0.6 : piscar(t, 1.9),
       olhar: andando ? 0 : -0.3 + (t > L(27) - 0.1 && t < LE(27) + 0.4 ? 0.42 * seg(t, L(27) - 0.1, 0.3) : 0) + 0.3 * sem_graca,
       baixar: 0.32 * cansado + 0.25 * sem_graca - 0.1 * animado, inclinar: 0.12 * curioso + 0.15 * Math.sin(t * 7) * manca, sobr: susto + 0.4 * curioso - 0.6 * cansado, arregalar: susto,
-      bD: dBD, bE: dBE, balancar: Math.sin(t * 1.3) });
+      bD: dBD, bE: dBE, balancar: 0 });
     desb.position.y = pulo + (andando ? 0.1 * Math.abs(Math.sin(t * 2.4 * Math.PI)) : 0);
     desb.position.x += 0.35 * Math.sin(t * 7) * manca;
     const ombro = janela(t, L(26) - 0.2, S.D + 9, 0.5, 0.3);
     const lado = Math.floor(t / 2.7) % 2;
     let jBD = null, jBE = null;
     if (ombro > 0.01) jBD = { x: -0.25 * ombro, z: 1.15 * ombro, cx: -0.15 * ombro, cz: 0.1 * ombro };
-    else if (gJ > 0.15) { const g = { x: -0.55 * gJ, z: 0.12 * gJ, cx: -1.0 * gJ, cz: 0 }; if (lado) jBD = g; else jBE = g; }
-    P.pose(jesus, { respirar: S.wave(t, 42), falar: bJ, fase: t + 1, piscar: piscar(t, 0.4), olhar: 0.3, balancar: Math.sin(t * 1.1 + 1), bD: jBD, bE: jBE });
+    else if (gJ > 0.25) { const g = { x: -0.32 * gJ, z: 0.08 * gJ, cx: -0.6 * gJ, cz: 0 }; if (lado) jBD = g; else jBE = g; }
+    P.pose(jesus, { respirar: S.wave(t, 42), falar: bJ, fase: t + 1, piscar: piscar(t, 0.4), olhar: 0.3, balancar: 0, bD: jBD, bE: jBE });
     jesus.position.set(JX, 0, 0);
     if (t > L(26)) desb.position.x = S.mix(desb.position.x, 1.25, seg(t, L(26), 0.6, 'power2.inOut'));
 

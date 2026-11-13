@@ -239,7 +239,7 @@
     });
     if (u.cabeca) {
       u.cabeca.rotation.y = o.olhar || 0;
-      u.cabeca.rotation.x = (o.baixar || 0) + 0.06 * (o.falar || 0) * Math.sin((o.fase || 0) * 9);
+      u.cabeca.rotation.x = (o.baixar || 0) + 0.035 * (o.falar || 0) * Math.sin((o.fase || 0) * 9);
       u.cabeca.rotation.z = o.inclinar || 0;
     }
     if (u.boca) u.boca.scale.y = 1 + 1.7 * (o.falar || 0);
