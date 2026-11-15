@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Anton&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="studio.js"></script>
+<script src="personagens.js"></script>
+<style>
+  :root {
+    --ceu-topo: #557da0; --ceu-meio: #6b8c9f; --ceu-horizonte: #c9a888;
+    --legenda: #fdf8fc; --contorno: #352725; --destaque: #f4b24f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ceu-topo); }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden;
+    background: linear-gradient(180deg, var(--ceu-topo) 0%, var(--ceu-meio) 38%, var(--ceu-horizonte) 52%);
+    font-family: 'Nunito', sans-serif; }
+  #cena { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+  .legenda { position: absolute; left: 0; right: 0; top: 560px; text-align: center; font-weight: 900; font-size: 58px;
+    color: var(--legenda); -webkit-text-stroke: 12px var(--contorno); paint-order: stroke fill;
+    text-shadow: 0 5px 0 var(--contorno); }
+  .legenda b { color: var(--destaque); font-weight: 900; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="6" data-width="1080" data-height="1920">
+  <canvas id="cena" width="1080" height="1920"></canvas>
+  <div id="legenda" class="legenda"></div>
+</div>
+<script>
+  // Cena de teste dos personagens: Jesus e o Desbravador lado a lado à beira do lago, fim de tarde.
+  const S = STUDIO, P = PERSONAGENS;
+  THREE.ColorManagement.legacyMode = false; // cores em hex = sRGB de verdade
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('cena'), antialias: true, alpha: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1);
+  renderer.setSize(1080, 1920, false);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const cena = new THREE.Scene();
+  cena.fog = new THREE.Fog(0xb59c84, 80, 220);
+  const cam = new THREE.PerspectiveCamera(30, 1080 / 1920, 0.1, 400);
+
+  cena.add(new THREE.HemisphereLight(0xd6e0ea, 0x55663a, 1.05));
+  const sol = new THREE.DirectionalLight(0xffeedd, 1.05);
+  sol.position.set(-3, 18, 9);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 40 });
+  sol.shadow.radius = 6;
+  sol.shadow.bias = -0.0005;
+  cena.add(sol);
+
+  // chão: grama perto, lago ao fundo e morros baixos
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(200, 60), new THREE.MeshStandardMaterial({ color: 0x6c8544, roughness: 1 }));
+  chao.rotation.x = -Math.PI / 2; chao.position.z = 0; chao.receiveShadow = true;
+  cena.add(chao);
+  const lago = new THREE.Mesh(new THREE.PlaneGeometry(400, 200), new THREE.MeshStandardMaterial({ color: 0x8c8780, roughness: 0.6 }));
+  lago.rotation.x = -Math.PI / 2; lago.position.set(0, -0.02, -129);
+  cena.add(lago);
+  const morro = new THREE.MeshStandardMaterial({ color: 0x5e6e4c, roughness: 1, flatShading: true });
+  for (const [x, z, w, h] of [[-60, -170, 70, 5], [55, -180, 80, 4.5], [5, -200, 50, 3]]) {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(w / 2, h, 5, 1), morro);
+    m.scale.z = 0.25; m.position.set(x, h / 2 - 0.3, z);
+    cena.add(m);
+  }
+  const rng = S.rng(7);
+  for (let i = 0; i < 6; i++) { // bloquinhos de grama espalhados
+    const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({ color: 0xa3b26a, roughness: 1 }));
+    b.position.set((rng() - 0.5) * 24, 0.25, -4 - rng() * 14); b.castShadow = true;
+    cena.add(b);
+  }
+
+  const jesus = P.jesus(), desb = P.desbravador();
+  jesus.position.set(-1.55, 0, 0);
+  desb.position.set(1.55, 0, 0);
+  jesus.rotation.y = 0.1; desb.rotation.y = -0.1;
+  cena.add(jesus, desb);
+
+  const legenda = document.getElementById('legenda');
+  const falas = [[0.4, 'Jesus e o <b>Desbravador</b>'], [3.2, 'lado a <b>lado</b>!']];
+
+  S.play(function render(t) {
+    // câmera: dolly in lento e uma órbita curta (sine.inOut)
+    const p = S.ease('sine.inOut')(t / S.D);
+    const ang = S.mix(-0.1, 0.06, p), dist = S.mix(31, 27.5, p);
+    cam.position.set(Math.sin(ang) * dist, 3.2, Math.cos(ang) * dist);
+    cam.lookAt(0, 5.6, 0);
+    // personagens: respiração, piscar, o Desbravador acena entre 2,6 e 4,6 s
+    const pisca = (t0) => Math.max(0, 1 - Math.abs(t - t0) / 0.07);
+    P.pose(jesus, { respirar: S.wave(t, 2), piscar: pisca(1.8) + pisca(4.9) });
+    const ac = S.seg(t, 2.6, 0.35, 'back.out(1.6)') - S.seg(t, 4.3, 0.3, 'power2.in');
+    P.pose(desb, { respirar: S.wave(t, 2, 0.3), piscar: pisca(1.1) + pisca(5.3), acenar: ac, acenarFase: t * 2.5, olhar: -0.25 * ac });
+    renderer.render(cena, cam);
+    // legenda corta seco no tempo da fala
+    let txt = '';
+    for (const [t0, f] of falas) if (t >= t0) txt = f;
+    if (legenda.innerHTML !== txt) legenda.innerHTML = txt;
+  }, { loop: false });
+</script>
+</body>
+</html>

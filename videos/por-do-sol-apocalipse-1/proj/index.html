@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Anton&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="studio.js"></script>
+<script src="personagens.js"></script>
+<script src="tempos.js"></script>
+<style>
+  :root { --legenda: #fdf8fc; --contorno: #352725; --destaque: #f4b24f; --numero: #d55423; --card: #f5f6f2; --tinta: #2a2f45; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #6a4a6a; }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Nunito', sans-serif; }
+  #ceu, #estrelas, canvas { position: absolute; inset: 0; }
+  #estrelas { height: 1000px; }
+  #estrelas i { position: absolute; width: 6px; height: 6px; background: #f3efe6; }
+  canvas { width: 1080px; height: 1920px; }
+  .abs { position: absolute; }
+  #legenda { left: 70px; right: 70px; top: 600px; text-align: center; font-weight: 900; font-size: 64px; line-height: 1.12;
+    color: var(--legenda); -webkit-text-stroke: 13px var(--contorno); paint-order: stroke fill; text-shadow: 0 6px 0 var(--contorno); }
+  #legenda b { color: var(--destaque); font-weight: 900; }
+  #ref { left: 50%; top: 232px; background: rgba(42,47,69,.86); color: #fff; font-weight: 800; font-size: 34px; padding: 10px 28px 12px;
+    border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: 12px; }
+  #ref .livro { width: 26px; height: 20px; border: 4px solid #fff; border-radius: 3px; position: relative; }
+  #ref .livro::after { content: ''; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 4px; margin-left: -2px; background: #fff; }
+  #titulo { left: 70px; right: 70px; top: 300px; background: var(--card); border-radius: 30px; padding: 26px 30px 30px; text-align: center; box-shadow: 0 8px 0 rgba(53,39,37,.25); }
+  #titulo .n { display: inline-block; background: var(--tinta); color: #fff; font-weight: 900; font-size: 28px; letter-spacing: .12em; padding: 6px 20px 8px; border-radius: 999px; }
+  #titulo .q { margin-top: 12px; font-family: 'Anton', sans-serif; font-size: 92px; line-height: 1.02; text-transform: uppercase; color: var(--tinta); }
+  #titulo .q b { color: var(--numero); font-weight: 400; }
+  #contador { left: 170px; width: 740px; top: 300px; text-align: center; }
+  #contador .caixa { background: var(--card); border-radius: 24px; height: 112px; display: flex; align-items: center; justify-content: center;
+    color: var(--numero); font-weight: 900; font-size: 76px; box-shadow: 0 6px 0 rgba(53,39,37,.25); }
+  #contador .rot { margin-top: 10px; color: #fff; font-weight: 800; font-size: 34px; text-shadow: 0 3px 0 rgba(53,39,37,.7); }
+  #chips { left: 40px; right: 40px; top: 480px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .chip { background: var(--card); color: var(--tinta); font-weight: 900; font-size: 36px; padding: 10px 26px 12px; border-radius: 999px;
+    box-shadow: 0 5px 0 rgba(53,39,37,.25); white-space: nowrap; }
+  .chip.on { background: var(--destaque); }
+  #fim { left: 50px; right: 50px; top: 300px; text-align: center; }
+  #fim .q { font-family: 'Anton', sans-serif; font-size: 160px; line-height: .96; text-transform: uppercase; color: var(--legenda);
+    -webkit-text-stroke: 14px var(--contorno); paint-order: stroke fill; text-shadow: 0 8px 0 var(--contorno); }
+  #fim .q b { color: var(--destaque); font-weight: 400; }
+  #fim .r { display: inline-block; margin-top: 26px; background: var(--destaque); color: var(--tinta); font-weight: 900; font-size: 40px;
+    padding: 12px 34px 14px; border-radius: 999px; box-shadow: 0 6px 0 rgba(53,39,37,.3); }
+  #fim .p { margin-top: 26px; color: #fff; font-weight: 900; font-size: 44px; line-height: 1.2; -webkit-text-stroke: 9px var(--contorno); paint-order: stroke fill; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="142.11" data-width="1080" data-height="1920">
+  <div id="ceu"></div>
+  <div id="estrelas"></div>
+  <canvas id="fundo" width="1080" height="1920"></canvas>
+  <canvas id="frente" width="1080" height="1920"></canvas>
+  <div id="ref" class="abs"><span class="livro"></span><span id="refTxt"></span></div>
+  <div id="titulo" class="abs"><div class="n" id="tituloN"></div><div class="q" id="tituloQ"></div></div>
+  <div id="contador" class="abs"><div class="caixa" id="numero"></div><div class="rot" id="rotulo"></div></div>
+  <div id="chips" class="abs"></div>
+  <div id="legenda" class="abs"></div>
+  <div id="fim" class="abs"><div class="q">Feliz<br><b>sábado</b></div><div class="r">Apocalipse 1:5-6</div><div class="p">Ele te ama, te libertou<br>e te chamou para reinar.</div></div>
+</div>
+<script>
+(function () {
+  const S = STUDIO, P = PERSONAGENS, T = window.TEMPOS;
+  THREE.ColorManagement.legacyMode = false;
+  const $ = (id) => document.getElementById(id);
+  const F = {}; for (const f of T.falas) F[f.id] = f;
+  const L = (id) => F[id].t0, LE = (id) => F[id].t1;
+  const W = (id, w, n) => { const ps = F[id].palavras.filter((x) => x.w.toLowerCase().replace(/[^\wà-ú-]/g, '').startsWith(w)); const p = ps[(n || 1) - 1] || ps[0]; return p ? p.t : F[id].t0; };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = (n) => S.ease(n);
+  const seg = (t, t0, d, e) => (t < t0 ? 0 : S.seg(t, t0, d, e || 'power2.out'));
+  const janela = (t, a, b, ent, sai) => seg(t, a, ent || 0.35, 'power2.out') - seg(t, b, sai || 0.35, 'power2.in');
+  const pop = (t, t0, d) => (t < t0 ? 0 : S.seg(t, t0, d || 0.35, 'back.out(1.6)'));
+  function mostra(el, p, base) { el.style.opacity = p > 0.001 ? 1 : 0; el.style.transform = (base || '') + ` scale(${0.85 + 0.15 * p})`; }
+  const mixHex = (a, b, k) => { const ca = new THREE.Color(a), cb = new THREE.Color(b); return '#' + ca.lerp(cb, k).getHexString(); };
+
+  function novoR(id) {
+    const r = new THREE.WebGLRenderer({ canvas: $(id), antialias: true, alpha: true, preserveDrawingBuffer: true });
+    r.setPixelRatio(1); r.setSize(1080, 1920, false); r.outputEncoding = THREE.sRGBEncoding;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.setClearColor(0x000000, 0); return r;
+  }
+  const rFundo = novoR('fundo'), rFrente = novoR('frente');
+  const cena = new THREE.Scene(); cena.fog = new THREE.Fog(0xc69a7a, 80, 260);
+  const cam = new THREE.PerspectiveCamera(30, 1080 / 1920, 0.1, 700);
+  const hemi = new THREE.HemisphereLight(0xe8d0c0, 0x55553a, 1.0); cena.add(hemi);
+  const sol = new THREE.DirectionalLight(0xffc890, 1.1); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 90 }); sol.shadow.radius = 8; sol.shadow.bias = -0.0004;
+  cena.add(sol, sol.target);
+  const preench = new THREE.DirectionalLight(0xbfa8ff, 0.25); cena.add(preench);
+  const M = (c, ex) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 1 }, ex || {}));
+  const bR = (pai, c, w, h, d, x, y, z, r) => { const m = new THREE.Mesh(P.geoArred(w, h, d, r == null ? 0.12 : r), M(c)); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; pai.add(m); return m; };
+  const rng = S.rng(51);
+
+  // ---------- beira do lago no fim da tarde ----------
+  const matGrama = M(0x6c8544);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(600, 60), matGrama); chao.rotation.x = -Math.PI / 2; chao.position.z = 18; chao.receiveShadow = true; cena.add(chao);
+  const praia = bR(cena, 0xc9a874, 80, 0.3, 6, 0, 0.0, -10.5, 0.2);
+  const matAgua = M(0x4a5a74, { roughness: 0.35 });
+  const lago = new THREE.Mesh(new THREE.PlaneGeometry(600, 400), matAgua); lago.rotation.x = -Math.PI / 2; lago.position.set(0, -0.05, -213); cena.add(lago);
+  const matMorro = M(0x4e4e5a, { flatShading: true });
+  for (let i = 0; i < 7; i++) { const x = -150 + i * 55, w = 90 + (i % 3) * 20, h = 6 + (i % 4); const m = new THREE.Mesh(new THREE.ConeGeometry(w / 2, h, 5, 1), matMorro); m.scale.z = 0.25; m.position.set(x, h / 2 - 0.4, -300); cena.add(m); }
+  for (let i = 0; i < 40; i++) { const b = bR(cena, 0xa3b26a, 0.5, 0.5, 0.5, (rng() - 0.5) * 50, 0.25, -7 + rng() * 30, 0.1); if (Math.abs(b.position.x) < 6 && b.position.z < 6) b.position.x += 12; }
+  for (const [x, z, s] of [[-9, -4, 1.3], [10, -3, 1.5], [-14, 2, 1.1], [15, 4, 1.2]]) { const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); cena.add(g); bR(g, 0x5a3e2a, 0.7, 4, 0.7, 0, 2, 0, 0.12); bR(g, 0x4f6a3c, 3.4, 2.4, 3.4, 0, 4.6, 0, 0.5); bR(g, 0x5c7a46, 2.4, 1.8, 2.4, 0.3, 6.0, 0.2, 0.45); }
+  // sol que se põe no lago, com reflexo
+  const solMat = new THREE.MeshBasicMaterial({ color: 0xffd08a, fog: false });
+  const solDisco = new THREE.Mesh(new THREE.CircleGeometry(14, 48), solMat); cena.add(solDisco);
+  const reflexo = []; for (let i = 0; i < 14; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(6 - i * 0.3, 0.05, 2.2), new THREE.MeshBasicMaterial({ color: 0xffb06a, transparent: true, opacity: 0.8, fog: false })); cena.add(m); reflexo.push(m); }
+  const FRENTE = new THREE.Group(); cena.add(FRENTE);
+  const jesus = P.jesus(), desb = P.desbravador(); FRENTE.add(jesus, desb);
+  const JX = -1.6, DX = 1.6;
+  // corrente em volta do Desbravador (se quebra no "libertei") e coroa (aparece no "rei")
+  const corrente = new THREE.Group(); desb.userData.corpo.add(corrente);
+  const elos = []; for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2; const m = bR(corrente, 0x6a6e76, i % 2 ? 0.5 : 0.18, 0.32, i % 2 ? 0.18 : 0.5, Math.cos(a) * 1.25, 1.85, Math.sin(a) * 0.85, 0.06); m.rotation.y = -a; m.material = M(0x6a6e76, { roughness: 0.4, metalness: 0.5 }); elos.push({ m, a }); }
+  const coroa = new THREE.Group(); coroa.position.set(0, 2.45, 0); desb.userData.cabeca.add(coroa);
+  bR(coroa, 0xe8c040, 2.1, 0.45, 2.1, 0, 0.1, 0, 0.08); for (const [x, z] of [[-0.85, 0.85], [0, 0.85], [0.85, 0.85], [-0.85, -0.85], [0.85, -0.85], [0, -0.85]]) bR(coroa, 0xe8c040, 0.38, 0.55, 0.38, x, 0.55, z, 0.08);
+  bR(coroa, 0xc83228, 0.3, 0.3, 0.1, 0, 0.15, 1.08, 0.06);
+  coroa.traverse((o) => { if (o.material) o.material = M(o.material.color.getHex(), { roughness: 0.35, metalness: 0.45 }); });
+  const matsFrente = []; FRENTE.traverse((o) => { if (o.material && !matsFrente.includes(o.material)) matsFrente.push(o.material); });
+
+  // ---------- túmulo vazio (x = 90), manhã ----------
+  const TX = 90;
+  const tumulo = new THREE.Group(); tumulo.position.set(TX, 0, 0); cena.add(tumulo);
+  const tchao = new THREE.Mesh(new THREE.PlaneGeometry(50, 40), M(0x9a8a62)); tchao.rotation.x = -Math.PI / 2; tchao.position.set(0, 0.03, -6); tchao.receiveShadow = true; tumulo.add(tchao);
+  bR(tumulo, 0x9a8a72, 14, 8, 6, 0, 4, -8, 0.8); bR(tumulo, 0x8a7a62, 9, 5, 5, -6, 2.5, -6.5, 0.6);
+  bR(tumulo, 0x1e1812, 2.8, 3.4, 1.2, 0.6, 1.7, -4.7, 0.3);
+  const pedra = new THREE.Mesh(new THREE.CylinderGeometry(2.0, 2.0, 0.9, 20), M(0x8e8a80)); pedra.rotation.x = Math.PI / 2; pedra.castShadow = true; tumulo.add(pedra);
+  for (const [x, z] of [[-5, -2], [5, -3], [7, 0]]) { bR(tumulo, 0x6a8a46, 1.6, 1.2, 1.6, x, 0.6, z, 0.4); }
+  const panos = bR(tumulo, 0xefe7dc, 1.6, 0.25, 0.6, 0.6, 0.4, -4.6, 0.1);
+
+  // ---------- estrelas ----------
+  { const r = S.rng(5); let h = ''; for (let i = 0; i < 80; i++) h += `<i style="left:${(r() * 1070) | 0}px;top:${(r() * 900) | 0}px;opacity:${(0.4 + r() * 0.6).toFixed(2)}"></i>`; $('estrelas').innerHTML = h; }
+
+  // céu do pôr do sol avança com o tempo do vídeo (0 = dourado, 1 = noite chegando)
+  const CEUS = [['#4f7aa8', '#e0a070', '#f6c47c'], ['#4a4a7a', '#d0705a', '#f2a060'], ['#24264a', '#7a4a72', '#d07a5a'], ['#14162e', '#3e2e56', '#8a5a5a']];
+  function ceuPor(k) {
+    const n = CEUS.length - 1, i = Math.min(n - 1, Math.floor(k * n)), f = k * n - i;
+    return [0, 1, 2].map((j) => mixHex(CEUS[i][j], CEUS[i + 1][j], f));
+  }
+
+  // ---------- planos ----------
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const PL = [];
+  const pl_ = (t, cl, de, para, oDe, oPara, foco, dof, costas) => PL.push({ t, clima: cl, de, para, olhaDe: oDe, olhaPara: oPara || oDe, foco: foco || V(0, 0, 0), dof: dof || 0, costas: !!costas });
+  const dois = [V(0.6, 4.2, 17.6), V(0.45, 4.2, 17.0), V(0, 4.5, 0)];
+  const closeJ = [V(-0.6, 4.3, 14.2), V(-0.7, 4.3, 13.85), V(JX, 5.9, 0)];
+  const closeD = [V(1.0, 3.8, 13.7), V(1.1, 3.8, 13.35), V(DX, 5.5, 0)];
+  const P_ = (t, pre, dof) => pl_(t, 'lago', pre[0], pre[1], pre[2], null, null, dof == null ? 8 : dof);
+  const costas = (t, de, para, olha) => pl_(t, 'lago', de, para, olha, null, V(0, 0, -2), 0, true);
+  costas(0, V(0, 3.6, 27), V(0, 3.8, 24), V(0, 7.5, -60));
+  P_(L(1) + 1.2, dois, 3);
+  P_(L(2), closeJ);
+  P_(L(3), closeD);
+  P_(L(4), closeJ);
+  P_(L(5), closeD);
+  P_(L(6), closeJ);
+  pl_(L(7), 'manha', V(TX - 4, 4.2, 22), V(TX - 3.2, 3.8, 18.5), V(TX + 1.6, 3.0, -4.5), V(TX + 1.6, 2.6, -4.5), V(TX, 0, -4));
+  P_(L(8), closeD);
+  P_(L(9), closeJ);
+  costas(L(10), V(-1, 4.5, 27), V(-0.5, 4.2, 24.5), V(0, 7.0, -60));
+  P_(L(11), closeJ);
+  P_(L(12), dois, 3);
+  P_(L(13), dois, 3);
+  P_(L(14), closeD, 6);
+  P_(L(16), closeJ);
+  P_(L(17), closeD);
+  P_(L(18), closeJ);
+  costas(L(19) - 0.6, V(0.4, 3.4, 25), V(0.2, 3.6, 22.5), V(0, 6.6, -60));
+  P_(L(20), closeJ);
+  P_(L(21), closeD, 6);
+  costas(L(22), V(0, 3.6, 24), V(0, 4.6, 30), V(0, 6.0, -60));
+  window.__PL = PL;
+  const planoEm = (t) => { let i = 0; while (i + 1 < PL.length && PL[i + 1].t <= t) i++; return i; };
+
+  const boca = (q, t) => { const a = T.boca[q]; return a[clamp(Math.floor(t * T.fps), 0, a.length - 1)] || 0; };
+  const bocaSuave = (q, t) => { let s = 0; for (let k = -6; k <= 0; k++) s += boca(q, t + k / T.fps); return s / 7; };
+  const piscar = (t, f) => { const c = (t + f) % 3.9; return Math.max(0, 1 - Math.abs(c - 3.7) / 0.07); };
+  const falaEm = (t) => T.falas.find((f) => t >= f.t0 - 0.05 && t <= f.t1 + 0.05);
+
+  const TITULOS = [
+    [W(4, 'fiel') - 0.1, LE(6) + 0.3, '1 DE 3', 'Fiel<br><b>Testemunha</b>'],
+    [W(7, 'primogênito') - 0.1, LE(8) + 0.3, '2 DE 3', 'Primogênito<br>dos <b>mortos</b>'],
+    [W(9, 'soberano') - 0.1, LE(9) + 0.3, '3 DE 3', 'Soberano dos<br><b>reis</b> da Terra'],
+  ];
+  const PRES = [W(11, 'três'), LE(14) + 0.4];
+  const presItens = [['amor que não se esgota', W(12, 'primeiro')], ['libertação completa', W(13, 'segundo')], ['chamado real', W(14, 'terceiro')]];
+  const LUZ = { t0: W(18, 'reflete'), t1: LE(18) + 0.3, itens: [['reflete a luz', W(18, 'reflete')], ['ama como foi amado', W(18, 'ama')], ['serve com alegria', W(18, 'serve')], ['compartilha a graça', W(18, 'compartilha')]] };
+  const legenda = $('legenda'), refTxt = $('refTxt'), chipsEl = $('chips');
+  let ultHtml = null, ultRef = null, ultChips = '', ultTit = null;
+  const tmp = new THREE.Vector3();
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = S.play(function render(t) {
+    const ip = planoEm(t), pl = PL[ip], fimPl = ip + 1 < PL.length ? PL[ip + 1].t : S.D;
+    const lin = clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1); const p = 0.6 * lin + 0.4 * ease('sine.inOut')(lin);
+    cam.position.lerpVectors(pl.de, pl.para, p); cam.lookAt(tmp.lerpVectors(pl.olhaDe, pl.olhaPara, p));
+    const kc = clamp(t / (S.D - 3), 0, 1);  // o pôr do sol inteiro dura o vídeo
+    if (pl.clima === 'manha') {
+      $('ceu').style.background = 'linear-gradient(180deg, #6a9ad0 0%, #a8c4d8 40%, #f2dcb0 55%)';
+      cena.fog.color.set(0xe0d0b0); hemi.color.set(0xeaf0f4); hemi.groundColor.set(0x7a6a40); hemi.intensity = 1.05; sol.color.set(0xfff0dc); sol.intensity = 1.2;
+      $('estrelas').style.opacity = 0; solDisco.visible = false; reflexo.forEach((m) => (m.visible = false));
+    } else {
+      const c = ceuPor(kc);
+      $('ceu').style.background = `linear-gradient(180deg, ${c[0]} 0%, ${c[1]} 42%, ${c[2]} 56%)`;
+      cena.fog.color.set(c[2]); hemi.color.set(mixHex('#f0d8c8', '#6a6aa0', kc)); hemi.groundColor.set(mixHex('#5a5a3a', '#2a2a2e', kc)); hemi.intensity = 1.05 - 0.45 * kc;
+      sol.color.set(mixHex('#ffd0a0', '#ff8a6a', kc)); sol.intensity = 1.15 - 0.75 * kc;
+      $('estrelas').style.opacity = clamp((kc - 0.72) / 0.2, 0, 1);
+      // o sol desce até sumir atrás do horizonte do lago
+      const ys = S.mix(34, -6, ease('power1.in')(kc));
+      solDisco.visible = true; solDisco.position.set(0, ys, -240); solDisco.lookAt(cam.position);
+      solMat.color.set(mixHex('#ffe0a0', '#ff8a50', kc));
+      reflexo.forEach((m, i) => { m.visible = ys > -8; m.position.set(0.6 * Math.sin(t * 1.3 + i), 0.02, -22 - i * 9); m.material.opacity = 0.75 * clamp((ys + 6) / 20, 0, 1) * (0.7 + 0.3 * Math.sin(t * 2 + i)); m.material.color.set(solMat.color); });
+    }
+    sol.position.set(pl.foco.x, 9, pl.foco.z - 30); sol.target.position.copy(pl.foco); preench.position.set(pl.foco.x + 6, 8, pl.foco.z + 14);
+    if (pl.clima === 'manha') sol.position.set(pl.foco.x - 6, 20, pl.foco.z + 12);
+    $('fundo').style.filter = pl.dof ? `blur(${pl.dof}px)` : 'none';
+
+    // ---------- Jesus e o Desbravador ----------
+    const bJ = boca('J', t), bD = boca('D', t), gJ = bocaSuave('J', t), gD = bocaSuave('D', t);
+    const virados = pl.costas;
+    const chega = ease('power1.out')(clamp((t - 0.3) / 1.8, 0, 1));
+    desb.position.set(S.mix(8, DX, chega), 0, S.mix(3, 0, chega));
+    const andando = t < 2.1;
+    const susto = janela(t, L(15) - 0.1, LE(15) + 0.2, 0.15, 0.3) + janela(t, L(8) - 0.1, LE(8) + 0.2, 0.3, 0.3) * 0.6;
+    const curioso = janela(t, L(3) - 0.1, LE(3) + 0.2, 0.3, 0.3) + janela(t, L(5) - 0.1, LE(5) + 0.2, 0.3, 0.3) + janela(t, L(17) - 0.1, LE(17) + 0.2, 0.3, 0.3);
+    const ombro = janela(t, L(19) - 0.8, S.D + 9, 0.6, 0.3);
+    let dBD = null;
+    if (gD > 0.3) dBD = { x: -0.3 * gD, z: 0.1 * gD, cx: -0.55 * gD, cz: 0 };
+    const solta = seg(t, W(13, 'libertei'), 0.1);
+    const coroaK = pop(t, W(14, 'rei'), 0.5) - seg(t, LE(16) + 0.3, 0.4, 'power2.in');
+    const tocaCoroa = janela(t, L(15), LE(15), 0.25, 0.3);
+    if (tocaCoroa > 0.01) dBD = { x: -2.6 * tocaCoroa, z: 0.4 * tocaCoroa, cx: -1.4 * tocaCoroa, cz: 0 };
+    P.pose(desb, { andar: andando ? t * 2.4 : null, respirar: S.wave(t, 40), falar: bD, fase: t, piscar: piscar(t, 1.9),
+      olhar: andando || virados ? 0 : -0.3, baixar: virados ? -0.05 : 0, inclinar: 0.1 * curioso, sobr: susto + 0.4 * curioso, arregalar: susto, bD: dBD });
+    desb.rotation.y = virados ? Math.PI : (andando ? -0.8 : 0);
+    if (virados && t > L(19) - 1) desb.position.x = S.mix(desb.position.x, 1.3, seg(t, L(19) - 0.8, 0.6));
+    coroa.visible = coroaK > 0.01; coroa.scale.setScalar(Math.max(0.01, coroaK)); coroa.position.y = 2.45 + 1.2 * (1 - clamp(coroaK, 0, 1));
+    corrente.visible = t > W(13, 'segundo') - 0.2 && t < W(13, 'libertei') + 1.6;
+    elos.forEach(({ m, a }, i) => { const k = clamp((t - W(13, 'libertei')) / 1.2, 0, 1); m.position.set(Math.cos(a) * (1.25 + 3 * k), 1.85 + 2.2 * Math.sin(k * Math.PI) - 3 * k * k, Math.sin(a) * (0.85 + 3 * k)); m.rotation.x = k * 4 * (i % 2 ? 1 : -1); });
+    if (!(t >= W(13, 'libertei'))) elos.forEach(({ m }) => { m.position.y = 1.85 + 0.05 * Math.sin(t * 3); });
+    let jBD = null, jBE = null;
+    const lado = Math.floor(t / 2.7) % 2;
+    if (ombro > 0.01) jBD = { x: -0.25 * ombro, z: 1.15 * ombro, cx: -0.15 * ombro, cz: 0.1 * ombro };
+    else if (gJ > 0.25) { const g = { x: -0.32 * gJ, z: 0.08 * gJ, cx: -0.6 * gJ, cz: 0 }; if (lado) jBD = g; else jBE = g; }
+    if (virados && ombro > 0.01) { jBE = jBD; jBD = null; if (jBE) jBE = { x: jBE.x, z: jBE.z, cx: jBE.cx, cz: jBE.cz }; }
+    P.pose(jesus, { respirar: S.wave(t, 42), falar: bJ, fase: t + 1, piscar: piscar(t, 0.4), olhar: virados ? 0 : 0.3, bD: jBD, bE: jBE });
+    jesus.position.set(JX + (virados && ombro > 0.01 ? 0.25 : 0), 0, 0); jesus.rotation.y = virados ? Math.PI : 0;
+
+    // ---------- túmulo ----------
+    const rola = seg(t, W(7, 'vencer') - 0.2, 1.4, 'power2.inOut');
+    pedra.position.set(S.mix(0.6, 3.8, rola), 2.0, -3.9); pedra.rotation.y = -rola * 1.6;
+    panos.visible = rola > 0.5;
+
+    // ---------- desenha ----------
+    const naPraia = pl.clima !== 'manha';
+    FRENTE.visible = naPraia;
+    if (naPraia && pl.dof > 0) {
+      for (const m of matsFrente) { m.colorWrite = false; m.depthWrite = false; }
+      rFundo.render(cena, cam);
+      for (const m of matsFrente) { m.colorWrite = true; m.depthWrite = true; }
+      const outros = cena.children.filter((o) => o !== FRENTE && !o.isLight); outros.forEach((o) => { o.userData.v = o.visible; o.visible = false; });
+      rFrente.render(cena, cam); outros.forEach((o) => { o.visible = o.userData.v; });
+      $('frente').style.display = 'block';
+    } else { rFundo.render(cena, cam); $('frente').style.display = 'none'; }
+
+    // ---------- textos ----------
+    const f = falaEm(t);
+    let html = ''; if (f) { const c = f.chunks.find((c) => t >= c.t0 && t < c.t1); if (c) html = c.html; }
+    if (html !== ultHtml) { legenda.innerHTML = html; ultHtml = html; }
+    const fr = T.falas.find((x) => x.ref && t >= x.t0 - 0.1 && t <= x.t1 + 0.3);
+    const refAtiva = fr ? fr.ref : null;
+    if (refAtiva !== ultRef) { if (refAtiva) refTxt.textContent = refAtiva; ultRef = refAtiva; }
+    const tit = TITULOS.find((x) => t >= x[0] && t < x[1]);
+    mostra($('ref'), refAtiva && !tit ? pop(t, fr.t0 - 0.1, 0.3) : 0, 'translateX(-50%)');
+    if ((tit ? tit[2] : null) !== ultTit) { if (tit) { $('tituloN').textContent = tit[2]; $('tituloQ').innerHTML = tit[3]; } ultTit = tit ? tit[2] : null; }
+    mostra($('titulo'), tit ? pop(t, tit[0], 0.4) : 0);
+    const presOn = t >= PRES[0] && t < PRES[1];
+    if (presOn) { $('numero').textContent = '3'; $('rotulo').textContent = 'presentes da graça'; }
+    mostra($('contador'), presOn ? pop(t, PRES[0], 0.35) : 0);
+    let lista = null; if (presOn) lista = presItens; else if (t >= LUZ.t0 && t < LUZ.t1) lista = LUZ.itens;
+    const chave = lista ? lista.map((x) => x[0]).join('|') : '';
+    if (chave !== ultChips) { chipsEl.innerHTML = lista ? lista.map((x) => `<span class="chip">${x[0]}</span>`).join('') : ''; ultChips = chave; }
+    if (lista) [...chipsEl.children].forEach((el, k) => { const t0 = lista[k][1]; mostra(el, pop(t, t0, 0.28)); el.classList.toggle('on', t >= t0 && t < t0 + 0.8); });
+    chipsEl.style.top = presOn ? '480px' : '300px';
+    let topo = 600;
+    if (tit) topo = 640; if (presOn) topo = 790; if (!presOn && lista) topo = 300 + 80 * lista.length + 60;
+    legenda.style.top = topo + 'px';
+    const fimOn = t >= LE(22) + 0.3; mostra($('fim'), fimOn ? pop(t, LE(22) + 0.3, 0.6) : 0); if (fimOn) legenda.innerHTML = '';
+  }, { loop: false });
+})();
+</script>
+</body>
+</html>

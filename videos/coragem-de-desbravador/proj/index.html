@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Anton&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="studio.js"></script>
+<script src="personagens.js"></script>
+<script src="tempos.js"></script>
+<style>
+  :root {
+    --legenda: #fdf8fc; --contorno: #352725; --destaque: #f4b24f; --numero: #d55423;
+    --card: #f5f6f2; --chip: #2a2f45; --tinta: #2a2f45;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #557da0; }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Nunito', sans-serif; }
+  #ceu { position: absolute; inset: 0; }
+  #estrelas { position: absolute; left: 0; top: 0; width: 1080px; height: 1000px; }
+  #estrelas i { position: absolute; width: 6px; height: 6px; background: #f3efe6; }
+  #cena { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+  .abs { position: absolute; }
+  /* legenda: gorda, contorno escuro, uma palavra no destaque; corta seco */
+  #legenda { left: 70px; right: 70px; top: 600px; text-align: center; font-weight: 900; font-size: 62px; line-height: 1.12;
+    color: var(--legenda); -webkit-text-stroke: 13px var(--contorno); paint-order: stroke fill; text-shadow: 0 6px 0 var(--contorno); }
+  #legenda b { color: var(--destaque); font-weight: 900; }
+  /* chip de versículo */
+  #ref { left: 50%; top: 232px; transform: translateX(-50%); background: rgba(42,47,69,.86); color: #fff; font-weight: 800;
+    font-size: 34px; padding: 10px 28px 12px; border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: 12px; }
+  #ref .livro { width: 26px; height: 20px; border: 4px solid #fff; border-radius: 3px; position: relative; }
+  #ref .livro::after { content: ''; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 4px; margin-left: -2px; background: #fff; }
+  /* contador */
+  #contador { left: 170px; width: 740px; top: 318px; text-align: center; transform-origin: 50% 50%; }
+  #contador .caixa { background: var(--card); border-radius: 24px; height: 108px; display: flex; align-items: center; justify-content: center;
+    color: var(--numero); font-weight: 900; font-size: 72px; box-shadow: 0 6px 0 rgba(53,39,37,.25); }
+  #contador .rot { margin-top: 10px; color: #fff; font-weight: 800; font-size: 32px; text-shadow: 0 3px 0 rgba(53,39,37,.6); }
+  #chips { left: 60px; right: 60px; top: 486px; display: flex; justify-content: center; gap: 16px; }
+  .chip { background: var(--card); color: var(--tinta); font-weight: 900; font-size: 32px; padding: 10px 24px 12px; border-radius: 999px;
+    box-shadow: 0 5px 0 rgba(53,39,37,.25); transform-origin: 50% 50%; white-space: nowrap; }
+  .chip.on { background: var(--destaque); }
+  /* faixa-tese */
+  #faixa { left: 60px; right: 60px; top: 236px; background: var(--destaque); color: var(--tinta); text-align: center; font-weight: 900;
+    font-size: 44px; padding: 18px 20px 20px; border-radius: 10px; box-shadow: 0 6px 0 rgba(53,39,37,.3); transform-origin: 50% 0; }
+  /* versículo grande */
+  #verso { left: 90px; right: 90px; top: 300px; background: var(--card); border-radius: 30px; padding: 46px 50px 40px; text-align: center;
+    color: var(--tinta); box-shadow: 0 8px 0 rgba(53,39,37,.25); transform-origin: 50% 50%; }
+  #verso .q { font-family: 'Anton', sans-serif; font-size: 96px; line-height: 1.02; text-transform: uppercase; color: var(--tinta); }
+  #verso .q b { color: var(--numero); font-weight: 400; }
+  #verso .r { margin-top: 18px; font-weight: 900; font-size: 34px; color: var(--numero); }
+  /* distintivo de especialidade */
+  #distintivo { left: 390px; top: 300px; width: 300px; height: 300px; border-radius: 50%; background: var(--chip); border: 14px solid var(--destaque);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; transform-origin: 50% 50%; }
+  #distintivo .t { font-weight: 900; font-size: 24px; letter-spacing: .12em; color: var(--destaque); }
+  #distintivo .n { font-family: 'Anton', sans-serif; font-size: 58px; line-height: 1.05; }
+  #distintivo .tri { width: 0; height: 0; border-left: 26px solid transparent; border-right: 26px solid transparent; border-top: 44px solid #c83228; margin-top: 6px; }
+  /* fim */
+  #fim { left: 60px; right: 60px; top: 300px; text-align: center; }
+  #fim .q { font-family: 'Anton', sans-serif; font-size: 150px; line-height: .98; text-transform: uppercase; color: var(--legenda);
+    -webkit-text-stroke: 14px var(--contorno); paint-order: stroke fill; text-shadow: 0 8px 0 var(--contorno); }
+  #fim .q b { color: var(--destaque); font-weight: 400; }
+  #fim .r { display: inline-block; margin-top: 26px; background: var(--destaque); color: var(--tinta); font-weight: 900; font-size: 44px;
+    padding: 12px 34px 14px; border-radius: 999px; box-shadow: 0 6px 0 rgba(53,39,37,.3); }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="130.49" data-width="1080" data-height="1920">
+  <div id="ceu"></div>
+  <div id="estrelas"></div>
+  <canvas id="cena" width="1080" height="1920"></canvas>
+  <div id="faixa" class="abs">CORAGEM É SENTIR MEDO E CONFIAR</div>
+  <div id="ref" class="abs"><span class="livro"></span><span id="refTxt"></span></div>
+  <div id="contador" class="abs"><div class="caixa" id="numero">3</div><div class="rot" id="rotulo"></div></div>
+  <div id="chips" class="abs"></div>
+  <div id="verso" class="abs"><div class="q">Seja <b>forte</b><br>e corajoso</div><div class="r">Josué 1:9</div></div>
+  <div id="distintivo" class="abs"><div class="t">ESPECIALIDADE</div><div class="n">CORAGEM</div><div class="tri"></div></div>
+  <div id="legenda" class="abs"></div>
+  <div id="fim" class="abs"><div class="q">Seja <b>forte</b><br>e corajoso.</div><div class="r">Josué 1:9</div></div>
+</div>
+<script>
+(function () {
+  const S = STUDIO, P = PERSONAGENS, T = window.TEMPOS;
+  THREE.ColorManagement.legacyMode = false;
+  const $ = (id) => document.getElementById(id);
+  const F = {}; for (const f of T.falas) F[f.id] = f;
+  const L = (id) => F[id].t0, LE = (id) => F[id].t1;
+  // tempo em que uma palavra é dita numa fala (a primeira que começa com o texto dado)
+  const W = (id, w) => { const p = F[id].palavras.find((x) => x.w.toLowerCase().replace(/[^\wà-ú]/g, '').startsWith(w)); return p ? p.t : F[id].t0; };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = (n) => S.ease(n);
+
+  // ---------- renderizador ----------
+  const renderer = new THREE.WebGLRenderer({ canvas: $('cena'), antialias: true, alpha: true, preserveDrawingBuffer: true });
+  renderer.setPixelRatio(1);
+  renderer.setSize(1080, 1920, false);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  const cena = new THREE.Scene();
+  cena.fog = new THREE.Fog(0xb59c84, 80, 240);
+  const cam = new THREE.PerspectiveCamera(30, 1080 / 1920, 0.1, 600);
+  const hemi = new THREE.HemisphereLight(0xd6e0ea, 0x55663a, 1.05);
+  cena.add(hemi);
+  const sol = new THREE.DirectionalLight(0xffeedd, 1.05);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 60 });
+  sol.shadow.radius = 6; sol.shadow.bias = -0.0005;
+  cena.add(sol, sol.target);
+  const fogo = new THREE.PointLight(0xff9a4a, 0, 14, 2);
+  cena.add(fogo);
+
+  const M = (c, extra) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 1 }, extra || {}));
+  const box = (pai, c, w, h, d, x, y, z, sombra) => {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M(c));
+    m.position.set(x, y, z); m.castShadow = sombra !== false; pai.add(m); return m;
+  };
+
+  // ---------- mundo: grama, lago, morros ----------
+  const matGrama = M(0x6c8544);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(600, 80), matGrama);
+  chao.rotation.x = -Math.PI / 2; chao.position.z = 10; chao.receiveShadow = true; cena.add(chao);
+  const matAgua = M(0x8c8780, { roughness: 0.6 });
+  const lago = new THREE.Mesh(new THREE.PlaneGeometry(800, 400), matAgua);
+  lago.rotation.x = -Math.PI / 2; lago.position.set(0, -0.05, -230); lago.receiveShadow = true; cena.add(lago);
+  const matMorro = M(0x5e6e4c, { flatShading: true });
+  for (const [x, z, w, h] of [[-90, -260, 120, 9], [80, -280, 140, 8], [10, -320, 90, 6], [200, -270, 120, 9], [-220, -280, 140, 8]]) {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(w / 2, h, 5, 1), matMorro);
+    m.scale.z = 0.25; m.position.set(x, h / 2 - 0.4, z); cena.add(m);
+  }
+  const rng = S.rng(11);
+  const matTufo = M(0xa3b26a);
+  for (let i = 0; i < 40; i++) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), matTufo);
+    b.position.set((rng() - 0.5) * 300, 0.25, -26 + rng() * 40);
+    if (Math.abs(b.position.x) < 5 && b.position.z > -4) b.position.x += 9;
+    b.castShadow = true; cena.add(b);
+  }
+
+  // ondas: grade de blocos de água sobre o lago, perto dos sets do barco e do Pedro
+  const NX = 34, NZ = 16, ondas = new THREE.InstancedMesh(new THREE.BoxGeometry(2.45, 1, 2.45), M(0x7d8a91, { roughness: 0.7 }), NX * NZ);
+  ondas.receiveShadow = true; cena.add(ondas);
+  const dummy = new THREE.Object3D();
+  function desenhaOndas(t, amp) {
+    let i = 0;
+    for (let a = 0; a < NX; a++) for (let b = 0; b < NZ; b++) {
+      const x = -30 + a * 2.4 + 8, z = -52 - b * 2.4;
+      const y = amp * (Math.sin(x * 0.45 + t * 2.2) * 0.6 + Math.sin(z * 0.6 - t * 1.7) * 0.4) - 0.45;
+      dummy.position.set(x, y, z); dummy.updateMatrix(); ondas.setMatrixAt(i++, dummy.matrix);
+    }
+    ondas.instanceMatrix.needsUpdate = true;
+    ondas.visible = true;
+    return (x, z) => amp * (Math.sin(x * 0.45 + t * 2.2) * 0.6 + Math.sin(z * 0.6 - t * 1.7) * 0.4);
+  }
+
+  // ---------- personagens principais (beira do lago) ----------
+  const jesus = P.jesus(), desb = P.desbravador();
+  cena.add(jesus, desb);
+  const JX = -1.55, DX = 1.55;
+
+  // ---------- set Getsêmani (x = 70): oliveiras e pedra, Jesus ajoelhado ----------
+  const GX = 70;
+  const getse = new THREE.Group(); getse.position.set(GX, 0, 0); cena.add(getse);
+  function oliveira(pai, x, z, s) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); pai.add(g);
+    box(g, 0x5a4636, 0.6, 2.6, 0.6, 0, 1.3, 0); box(g, 0x5a4636, 0.4, 1.2, 0.4, 0.5, 2.6, 0).rotation.z = -0.5;
+    box(g, 0x55684a, 3.2, 1.6, 3.0, 0, 3.4, 0); box(g, 0x60744f, 2.2, 1.2, 2.2, 0.9, 4.3, 0.3); box(g, 0x4d6044, 1.8, 1.0, 1.8, -1.0, 4.1, -0.4);
+  }
+  oliveira(getse, -4.5, -3, 1.1); oliveira(getse, 4.8, -5, 1.25); oliveira(getse, -1.5, -9, 1.0); oliveira(getse, 8, 1, 0.9); oliveira(getse, -8, 0, 0.95);
+  box(getse, 0x9a958c, 2.4, 1.1, 1.8, 0, 0.55, -1.6);
+  const jesusG = P.jesus(); jesusG.position.set(0, -0.75, 0.3); getse.add(jesusG);
+
+  // ---------- set barco (no lago, z = -70) ----------
+  const BX = 0, BZ = -68;
+  const barco = new THREE.Group(); cena.add(barco);
+  box(barco, 0x6b4a32, 7.5, 1.2, 2.8, 0, 0.6, 0); box(barco, 0x7d5a3e, 7.9, 0.3, 3.1, 0, 1.25, 0);
+  box(barco, 0x5a3e2a, 1.4, 1.0, 2.0, 4.1, 0.9, 0); box(barco, 0x5a3e2a, 0.3, 6, 0.3, -0.8, 4, 0);
+  box(barco, 0xe8e0d0, 0.15, 3.6, 2.6, -0.6, 4.4, 0);
+  const disc = [];
+  const coresD = [0x7a9cc6, 0xb9855a, 0x8e9a64, 0xa86c7d];
+  for (let i = 0; i < 4; i++) {
+    const d = P.jesus({ tunica: coresD[i], faixa: null, curto: true, cabelo: [0x3a2a1e, 0x5a3a26, 0x2a2018, 0x6b4a32][i], barba: [0x3a2a1e, 0x5a3a26, 0x2a2018, 0x6b4a32][i] });
+    d.scale.setScalar(0.42); barco.add(d); disc.push(d);
+  }
+  const jesusB = P.jesus(); jesusB.scale.setScalar(0.46); barco.add(jesusB);
+
+  // ---------- set Pedro (no lago, x = 30) ----------
+  const PX = 30, PZ = -66;
+  const jesusP = P.jesus(); jesusP.scale.setScalar(0.6); cena.add(jesusP);
+  const pedro = P.jesus({ tunica: 0x7a9cc6, faixa: null, curto: true, cabelo: 0x3a2a1e, barba: 0x3a2a1e }); pedro.scale.setScalar(0.6); cena.add(pedro);
+  const barco2 = barco.clone(); cena.add(barco2);
+
+  // ---------- set acampamento (x = -70), noite ----------
+  const CX = -70;
+  const acamp = new THREE.Group(); acamp.position.set(CX, 0, 0); cena.add(acamp);
+  const barraca = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.2, 4.4, 3, 1), M(0x3f6b4a, { flatShading: true }));
+  barraca.rotation.z = Math.PI / 2; barraca.rotation.y = 0; barraca.position.set(-3.2, 1.1, -2.5); barraca.castShadow = true; acamp.add(barraca);
+  box(acamp, 0x2a3d2e, 0.1, 1.6, 1.2, -5.45, 0.8, -2.5, false);
+  for (let i = 0; i < 4; i++) box(acamp, 0x5a3e2a, 1.8, 0.3, 0.3, 1.5, 0.15, 1, true).rotation.y = i * Math.PI / 4;
+  const chamas = [box(acamp, 0xe8743b, 0.9, 1.0, 0.9, 1.5, 0.75, 1, false), box(acamp, 0xf4b24f, 0.5, 0.7, 0.5, 1.5, 1.35, 1, false)];
+  for (const c of chamas) c.material = new THREE.MeshBasicMaterial({ color: c.material.color });
+  for (let i = 0; i < 7; i++) box(acamp, 0x7a7a72, 0.45, 0.35, 0.45, 1.5 + Math.cos(i / 7 * 6.28) * 1.2, 0.17, 1 + Math.sin(i / 7 * 6.28) * 1.2);
+  oliveira(acamp, 7, -6, 1.2); oliveira(acamp, -9, -7, 1.1); oliveira(acamp, 3, -10, 1.0);
+  const desbC = P.desbravador(); desbC.position.set(2.6, 0, 3.0); desbC.rotation.y = -0.7; acamp.add(desbC);
+
+  // ---------- set trilha (x = 140): degraus de pedra e grama ----------
+  const TX = 140;
+  const trilha = new THREE.Group(); trilha.position.set(TX, 0, 0); cena.add(trilha);
+  for (let i = 0; i < 9; i++) {
+    box(trilha, i % 2 ? 0x8e8a7c : 0x9a958a, 4, 1 + i * 1.0, 3, i * 2.6, (1 + i * 1.0) / 2, -2);
+    box(trilha, 0x6f8a46, 4.1, 0.25, 3.1, i * 2.6, 1 + i * 1.0 + 0.1, -2, false);
+  }
+  oliveira(trilha, -4, -7, 1.0); oliveira(trilha, 18, -9, 1.3);
+  const desbT = P.desbravador(); trilha.add(desbT);
+
+  // ---------- estrelas (só à noite) ----------
+  { const r = S.rng(5); let h = ''; for (let i = 0; i < 70; i++) h += `<i style="left:${(r() * 1070) | 0}px;top:${(r() * 900) | 0}px;opacity:${(0.4 + r() * 0.6).toFixed(2)}"></i>`; $('estrelas').innerHTML = h; }
+  const lua = new THREE.Mesh(new THREE.CircleGeometry(5, 32), new THREE.MeshBasicMaterial({ color: 0xf3ead6, fog: false }));
+  cena.add(lua);
+
+  // ---------- climas ----------
+  const CLIMA = {
+    tarde: { ceu: ['#557da0', '#6b8c9f', '#c9a888'], fog: 0xb59c84, hemi: [0xd6e0ea, 0x55663a, 1.05], sol: [0xffeedd, 1.05], agua: 0x6f8fa3, grama: 0x6c8544, estrelas: 0 },
+    noite: { ceu: ['#141a33', '#2b2d55', '#5b4b70'], fog: 0x2b2d48, hemi: [0x6d76b0, 0x1d2420, 0.55], sol: [0xaab6e8, 0.55], agua: 0x2e3450, grama: 0x34482e, estrelas: 1 },
+    tempestade: { ceu: ['#333e48', '#4a5660', '#6a7378'], fog: 0x59636a, hemi: [0x9aa6ae, 0x3b4636, 0.85], sol: [0xc8d2da, 0.55], agua: 0x4e5d66, grama: 0x55683c, estrelas: 0 },
+  };
+  const cHex = (h) => new THREE.Color(h);
+  function clima(nome) {
+    const c = CLIMA[nome];
+    $('ceu').style.background = `linear-gradient(180deg, ${c.ceu[0]} 0%, ${c.ceu[1]} 40%, ${c.ceu[2]} 54%)`;
+    cena.fog.color.set(c.fog);
+    hemi.color.set(c.hemi[0]); hemi.groundColor.set(c.hemi[1]); hemi.intensity = c.hemi[2];
+    sol.color.set(c.sol[0]); sol.intensity = c.sol[1];
+    matAgua.color.set(c.agua).multiplyScalar(0.62); ondas.material.color.set(c.agua).multiplyScalar(0.62);
+    matGrama.color.set(c.grama);
+    $('estrelas').style.opacity = c.estrelas;
+    lua.visible = nome === 'noite';
+  }
+
+  // ---------- planos (câmera e clima). Cada plano: início, clima, câmera de/para, foco da sombra ----------
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const praia = { sombra: V(0, 0, 0) };
+  const PL = [];
+  const plano = (t, clima, de, para, olhaDe, olhaPara, foco) => PL.push({ t, clima, de, para, olhaDe, olhaPara: olhaPara || olhaDe, foco: foco || V(0, 0, 0) });
+  // presets da beira do lago
+  const largo = [V(0, 3.2, 30), V(0, 3.2, 27.5), V(0, 5.4, 0)];
+  const dois = [V(0.8, 4.2, 17.5), V(0.3, 4.2, 16), V(0, 4.4, 0)];
+  const closeJ = [V(-0.5, 4.4, 14.5), V(-0.8, 4.4, 13.6), V(JX, 5.6, 0)];
+  const closeD = [V(0.9, 3.9, 14), V(1.2, 3.9, 13.1), V(DX, 5.2, 0)];
+  const P_ = (t, pre, cl) => plano(t, cl || 'tarde', pre[0], pre[1], pre[2]);
+
+  // cena 1
+  plano(0, 'tarde', V(0, 3.2, 31), V(0, 3.2, 29), V(0, 5.4, 0));
+  P_(L(1), dois);
+  P_(L(2), closeJ);
+  P_(L(3), closeD);
+  plano(L(4), 'tarde', V(0, 10, 36), V(0, 12, 33), V(0, 3.5, 0), V(0, 3.2, 0));
+  plano(L(5), 'tarde', V(1.4, 3.4, 17), V(1.6, 3.4, 16), V(1.3, 5.6, 0));
+  P_(L(6), dois);
+  // cena 2
+  P_(L(7) - 0.5, closeJ);
+  plano(W(8, 'jardim'), 'noite', V(GX + 7, 3.8, 20), V(GX + 2.5, 2.6, 12.5), V(GX, 2.4, -1), V(GX, 2.1, -1), V(GX, 0, 0));
+  P_(L(9), closeD);
+  plano(L(10), 'tarde', V(0.6, 3.6, 19), V(0.2, 3.6, 17), V(0, 5.6, 0));
+  // cena 3
+  plano(L(12) - 1.0, 'tarde', V(0.4, 7, 27), V(0.2, 6.8, 25), V(0, 0.5, -60));
+  plano(W(12, 'meus'), 'tempestade', V(12, 7, -36), V(9, 6, -40), V(BX, 1.5, BZ), V(BX, 1.5, BZ), V(BX, 0, BZ));
+  plano(L(13), 'tempestade', V(6, 3.2, -56), V(4.5, 3.0, -57.5), V(BX, 2.2, BZ), V(BX, 2.2, BZ), V(BX, 0, BZ));
+  plano(W(14, 'parar'), 'tarde', V(10, 5, -46), V(9, 4.6, -48), V(BX, 1.6, BZ), V(BX, 1.6, BZ), V(BX, 0, BZ));
+  P_(L(15), closeD);
+  P_(L(16), closeJ);
+  // cena 4
+  P_(L(17) - 0.5, dois);
+  plano(L(18), 'tarde', V(PX - 0.5, 8, PZ + 32), V(PX - 0.3, 7.6, PZ + 30), V(PX - 0.5, 0.2, PZ), V(PX - 0.3, 0.2, PZ), V(PX, 0, PZ));
+  plano(W(18, 'quando'), 'tempestade', V(PX - 0.6, 6, PZ + 19), V(PX - 0.4, 5.6, PZ + 17.5), V(PX - 0.6, 0.4, PZ), V(PX - 0.4, 0.2, PZ), V(PX, 0, PZ));
+  plano(L(19), 'tempestade', V(PX + 0.6, 4.6, PZ + 14), V(PX + 0.6, 4.4, PZ + 13), V(PX + 0.6, 0.8, PZ), V(PX + 0.6, 0.8, PZ), V(PX, 0, PZ));
+  P_(L(20), closeJ);
+  plano(W(20, 'olhe'), 'tarde', V(-1.0, 4.6, 8.4), V(-1.15, 4.6, 7.4), V(JX, 4.7, 0));
+  // cena 5
+  P_(L(21) - 0.5, closeD);
+  P_(L(22), closeJ);
+  plano(W(23, 'seja'), 'tarde', V(0, 1.4, 27), V(0, 1.6, 25), V(0, 6.8, 0));
+  plano(L(24), 'tarde', V(0.6, 3.4, 19), V(0.2, 3.4, 17.5), V(0, 5.8, 0));
+  plano(L(25), 'tarde', V(1.4, 3.4, 17), V(1.6, 3.4, 16), V(1.3, 5.6, 0));
+  // cena 6
+  P_(L(26) - 0.6, closeJ);
+  plano(W(26, 'acampamento'), 'noite', V(CX + 4, 4.6, 25), V(CX + 0.4, 3.6, 16), V(CX + 0.4, 3.6, -1), V(CX + 0.8, 3.0, -1), V(CX, 0, 0));
+  plano(L(27), 'tarde', V(TX + 2, 6, 30), V(TX + 10, 9, 30), V(TX + 1, 4.5, -2), V(TX + 10, 7.5, -2), V(TX + 6, 0, 0));
+  P_(L(28), dois);
+  plano(L(29), 'tarde', V(1.8, 3.0, 10.5), V(1.7, 3.0, 9.6), V(DX, 4.4, 0));
+  P_(L(30), closeJ);
+  // cena 7
+  plano(L(31) - 1.0, 'tarde', V(0.6, 3.8, 18), V(0.4, 3.8, 16.5), V(0, 4.6, 0));
+  plano(L(32), 'tarde', V(0, 4, 15.5), V(0, 4, 14.5), V(0, 4.3, 0));
+  plano(L(33), 'tarde', V(1.2, 3.9, 13), V(1.2, 3.9, 12.2), V(1.2, 5.2, 0));
+  plano(LE(33) + 0.35, 'tarde', V(0, 2.6, 30), V(0, 2.8, 27), V(0, 6.4, 0));
+
+  window.__PL = PL;
+  function planoEm(t) { let i = 0; while (i + 1 < PL.length && PL[i + 1].t <= t) i++; return i; }
+
+  // ---------- quem fala, boca ----------
+  const boca = (q, t) => { const a = T.boca[q]; const i = Math.floor(t * T.fps); return a[clamp(i, 0, a.length - 1)] || 0; };
+  const falaEm = (t) => T.falas.find((f) => t >= f.t0 - 0.05 && t <= f.t1 + 0.05);
+  const piscar = (t, fase) => { const c = (t + fase) % 3.7; return Math.max(0, 1 - Math.abs(c - 3.55) / 0.07); };
+
+  // ---------- pops ----------
+  const pop = (t, t0, d) => (t < t0 ? 0 : S.seg(t, t0, d || 0.35, 'back.out(1.6)'));
+  function mostra(el, p) { el.style.opacity = p > 0.001 ? 1 : 0; el.style.transform = (el._base || '') + ` scale(${0.85 + 0.15 * p})`; if (p <= 0.001) el.style.opacity = 0; }
+
+  // chips de cada momento: [início, fim, número, rótulo, [palavra, momento]]
+  const CHIPS = [
+    { t0: W(4, 'tempestade'), t1: LE(4) + 0.2, num: null, rot: '', itens: [['tempestade no barco', W(4, 'tempestade')], ['multidão no monte', W(4, 'multidão')]] },
+    { t0: L(5), t1: LE(5) + 0.25, num: 3, rot: 'medos', itens: [['escuro', W(5, 'escuro')], ['altura', W(5, 'altura')], ['longe de casa', W(5, 'longe')]] },
+    { t0: W(24, 'deus'), t1: LE(25) + 0.2, num: 3, rot: 'o espírito que Deus dá', itens: [['poder', W(24, 'poder')], ['amor', W(24, 'amor')], ['equilíbrio', W(24, 'equilíbrio')]] },
+  ];
+  const chipsEl = $('chips');
+
+  const legenda = $('legenda'), refTxt = $('refTxt');
+  $('ref')._base = 'translateX(-50%)';
+  let ultimoChips = -1, ultimoHtml = null, ultimaRef = null;
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = S.play(function render(t) {
+    const ip = planoEm(t), pl = PL[ip], fimPl = ip + 1 < PL.length ? PL[ip + 1].t : S.D;
+    const p = ease('sine.inOut')(clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1));
+    let nomeClima = pl.clima;
+    clima(nomeClima);
+    cam.position.lerpVectors(pl.de, pl.para, p);
+    const alvo = new THREE.Vector3().lerpVectors(pl.olhaDe, pl.olhaPara, p);
+    cam.lookAt(alvo);
+    sol.position.set(pl.foco.x - 3, 18, pl.foco.z + 9); sol.target.position.copy(pl.foco);
+    lua.position.set(cam.position.x - 30, 34, cam.position.z - 120); lua.lookAt(cam.position);
+
+    // ---- beira do lago ----
+    const f = falaEm(t);
+    const fala = f ? f.quem : null;
+    const bJ = boca('J', t), bD = boca('D', t);
+    // chegada correndo
+    const chega = ease('power2.out')(clamp((t - 0.3) / 1.9, 0, 1));
+    let dx = S.mix(13, DX, chega);
+    // cena 7: chega mais perto de Jesus
+    if (t > L(32) - 0.4) dx = S.mix(DX, 1.2, S.seg(t, L(32) - 0.4, 0.6, 'power2.inOut'));
+    desb.position.set(dx, 0, 0);
+    const correndo = t < 2.2;
+    const ofego = t < LE(1) ? Math.sin(t * 9) * (1 - S.seg(t, 2.2, 3.5, 'none')) : 0;
+    // olhares: quem ouve olha para quem fala
+    let olhJ = 0.32, olhD = -0.32;
+    if (t > L(33) - 0.1 && t < LE(33) + 0.3) olhD = S.mix(-0.32, 0.15, S.seg(t, L(33) - 0.1, 0.3, 'power2.out'));
+    // surpresa (fala 9): pulinho
+    const pulo = Math.sin(clamp((t - L(9)) / 0.45, 0, 1) * Math.PI) * 0.7;
+    // cabisbaixo na fala 6
+    const baixa = t > L(6) && t < LE(6) + 0.4 ? 0.28 * S.seg(t, L(6), 0.4, 'power2.out') : 0;
+    // jesus aponta o lago (cena 3) e vira para o lago
+    const aponta = S.seg(t, L(12) - 0.9, 0.5, 'back.out(1.4)') - S.seg(t, W(12, 'meus') + 0.2, 0.3, 'power2.in');
+    jesus.position.set(JX, 0, 0);
+    jesus.rotation.y = 0.1 + Math.PI * 0.85 * S.seg(t, L(12) - 1.0, 0.6, 'power2.inOut') * (t < W(12, 'meus') + 0.5 ? 1 : 0);
+    desb.rotation.y = -0.1 + Math.PI * 0.85 * S.seg(t, L(12) - 0.8, 0.6, 'power2.inOut') * (t < W(12, 'meus') + 0.5 ? 1 : 0);
+    // contar nos dedos (fala 25): um braço para cada palavra
+    const conta = (w) => S.seg(t, W(25, w), 0.2, 'back.out(2)') - S.seg(t, W(25, w) + 0.45, 0.2, 'power2.in');
+    const contando = conta('poder') + conta('amor') + conta('equilíbrio');
+    // continência (fala 31) e peito estufado
+    const cont = S.seg(t, L(31) - 0.9, 0.35, 'back.out(1.6)') - S.seg(t, L(32) - 0.5, 0.3, 'power2.in');
+    // mão no ombro (fala 32)
+    const ombro = S.seg(t, L(32) - 0.1, 0.45, 'power2.out');
+    // aceno final
+    const aceno = S.seg(t, LE(33) + 0.5, 0.35, 'back.out(1.6)');
+    P.pose(jesus, {
+      respirar: S.wave(t, 30), falar: bJ, piscar: piscar(t, 0.4), olhar: t > L(12) - 1 && t < W(12, 'meus') + 0.5 ? 0 : olhJ * (1 - aponta),
+      bracoD: aponta > 0.01 ? [-1.5 * aponta, 0.15 * aponta] : (ombro > 0.01 ? [-0.25 * ombro, 1.25 * ombro] : (t > LE(33) + 0.3 ? [0, 0] : null)),
+      acenar: 0,
+    });
+    if (aponta <= 0.01 && ombro <= 0.01) jesus.userData.bracos[1].rotation.set(0, 0, 0);
+    if (aponta > 0.01) jesus.userData.bracos[1].rotation.set(-1.5 * aponta, 0, 0.15 * aponta);
+    if (ombro > 0.01) jesus.userData.bracos[1].rotation.set(-0.25 * ombro, 0, 1.2 * ombro);
+    P.pose(desb, {
+      andar: correndo ? t * 3.4 : null, respirar: S.wave(t, 34) + ofego * 1.6, falar: bD, piscar: piscar(t, 1.9),
+      olhar: correndo ? 0 : (t > L(12) - 1 && t < W(12, 'meus') + 0.5 ? 0 : olhD), baixar: baixa,
+      acenar: aceno, acenarFase: t * 2.5,
+    });
+    desb.position.y = pulo;
+    if (contando > 0.01) desb.userData.bracos[1].rotation.set(0, 0, 2.5 * contando);
+    if (cont > 0.01) { desb.userData.bracos[1].rotation.set(0, 0, 0); desb.userData.bracos[1].rotation.x = 0; desb.userData.bracos[1].rotation.z = 2.3 * cont; desb.userData.bracos[1].rotation.y = -0.6 * cont; desb.userData.corpo.scale.set(1, 1, 1 + 0.08 * cont); }
+    else { desb.userData.bracos[1].rotation.y = 0; desb.userData.corpo.scale.set(1, 1, 1); }
+    if (correndo) desb.position.y = 0.12 * Math.abs(Math.sin(t * 3.4 * Math.PI));
+
+    // ---- Getsêmani ----
+    P.pose(jesusG, { respirar: S.wave(t, 20), falar: boca('J', t), piscar: 0.85, baixar: 0.25, bracoE: [-1.3, -0.35], bracoD: [-1.3, 0.35] });
+
+    // ---- lago: ondas, barco, discípulos, Pedro ----
+    const calmaria = t >= W(14, 'parar');
+    let amp = 0.12;
+    if (t >= W(12, 'meus') && t < W(14, 'parar')) amp = 1.1;
+    if (t >= W(18, 'quando') && t < L(20)) amp = 0.8;
+    const h = desenhaOndas(t, amp);
+    barco.position.set(BX, h(BX, BZ) - 0.5, BZ);
+    barco.rotation.set(amp * 0.18 * Math.sin(t * 2.1), 0.5, amp * 0.12 * Math.sin(t * 1.6 + 1));
+    disc.forEach((d, i) => { d.position.set(-2.6 + i * 1.5, 1.35, (i % 2 ? 0.5 : -0.5)); d.rotation.y = 1.2 - i * 0.5;
+      P.pose(d, { respirar: S.wave(t, 40), piscar: piscar(t, i), bracoE: amp > 0.5 ? [-2.6, -0.3] : [0, 0], bracoD: amp > 0.5 ? [-2.6, 0.3] : [0, 0] }); });
+    jesusB.position.set(2.8, 1.35, 0); jesusB.rotation.y = -0.6;
+    const repreende = S.seg(t, W(14, 'mandei'), 0.4, 'back.out(1.4)');
+    P.pose(jesusB, { bracoD: [-1.2 * repreende, 2.2 * repreende], bracoE: [0, 0], falar: 0 });
+    // Pedro anda até Jesus; afunda quando olha o vento; Jesus estende a mão
+    const anda = clamp((t - L(18)) / 3.0, 0, 1);
+    const afunda = S.seg(t, W(18, 'afundar'), 1.0, 'power2.out') - 0.5 * S.seg(t, L(19) + 0.6, 1.0, 'power2.out');
+    jesusP.position.set(PX + 2, h(PX + 2, PZ) * 0.3, PZ); jesusP.rotation.y = -1.4;
+    pedro.position.set(PX - 3.5 + 3.4 * anda, h(PX, PZ) * 0.3 - 1.4 * afunda, PZ); pedro.rotation.y = 1.4 - (t > W(18, 'quando') && t < L(19) ? 1.0 : 0);
+    barco2.position.set(PX - 12, h(PX - 12, PZ - 3) - 0.5, PZ - 3); barco2.rotation.set(0, 0.2, 0);
+    const mao = S.seg(t, L(19), 0.5, 'back.out(1.4)');
+    P.pose(jesusP, { bracoE: [-1.4 * mao, 0], bracoD: [0, 0], piscar: piscar(t, 2) });
+    P.pose(pedro, { andar: anda > 0 && anda < 1 ? t * 2 : null, bracoE: afunda > 0.2 ? [-2.4 * afunda, 0] : null, bracoD: afunda > 0.2 ? [-2.0 * afunda, 0] : null });
+
+    // ---- acampamento ----
+    const fl = 1 + 0.25 * Math.sin(t * 13) + 0.15 * Math.sin(t * 7.3);
+    chamas[0].scale.set(1, fl, 1); chamas[1].scale.set(1, 2 - fl, 1);
+    fogo.position.set(CX + 1.5, 1.4, 1); fogo.intensity = nomeClima === 'noite' && Math.abs(cam.position.x - CX) < 30 ? 2.2 * fl : 0;
+    P.pose(desbC, { respirar: S.wave(t, 30), piscar: piscar(t, 0.8), olhar: 0.2 + 0.35 * Math.sin(t * 0.9), baixar: 0.1 * Math.sin(t * 0.7) });
+    // ---- trilha: o desbravador sobe os degraus ----
+    const sobe = clamp((t - L(27)) / (LE(27) - L(27) + 0.3), 0, 1);
+    const degrau = sobe * 4.2, di = Math.floor(degrau), df = degrau - di;
+    desbT.position.set(di * 2.6 + df * 2.6, 1.1 + di * 1.0 + Math.sin(df * Math.PI) * 0.6 + df * 1.0, -2);
+    desbT.rotation.y = 1.45;
+    P.pose(desbT, { andar: t * 2.4, piscar: piscar(t, 1.3) });
+
+    renderer.render(cena, cam);
+
+    // ---------- textos ----------
+    // legenda (corta seco)
+    let html = '';
+    if (f) { const c = f.chunks.find((c) => t >= c.t0 && t < c.t1); if (c) html = c.html; }
+    // a legenda sobe para baixo do contador quando há cards
+    if (html !== ultimoHtml) { legenda.innerHTML = html; ultimoHtml = html; }
+    // versículo
+    const fr = T.falas.find((x) => x.ref && t >= x.t0 - 0.1 && t <= x.t1 + 0.3);
+    const refAtiva = fr && !(t >= W(23, 'seja') - 0.05 && t < LE(23) + 0.3) ? fr.ref : null;
+    if (refAtiva !== ultimaRef) { if (refAtiva) refTxt.textContent = refAtiva; ultimaRef = refAtiva; }
+    mostra($('ref'), refAtiva ? pop(t, fr.t0 - 0.1, 0.3) : 0);
+    // faixa-tese
+    const faixaOn = t >= W(10, 'coragem') && t < LE(11) + 0.4;
+    mostra($('faixa'), faixaOn ? pop(t, W(10, 'coragem'), 0.35) : 0);
+    // contador + chips
+    const ci = CHIPS.findIndex((c) => t >= c.t0 && t < c.t1);
+    if (ci !== ultimoChips) {
+      chipsEl.innerHTML = ci >= 0 ? CHIPS[ci].itens.map((x) => `<span class="chip">${x[0]}</span>`).join('') : '';
+      if (ci >= 0) { $('numero').textContent = CHIPS[ci].num; $('rotulo').textContent = CHIPS[ci].rot; }
+      ultimoChips = ci;
+    }
+    const temNum = ci >= 0 && CHIPS[ci].num != null;
+    mostra($('contador'), temNum ? pop(t, CHIPS[ci].t0, 0.35) : 0);
+    $('chips').style.top = temNum ? '486px' : '330px';
+    if (ci >= 0) {
+      [...chipsEl.children].forEach((el, k) => {
+        const t0 = CHIPS[ci].itens[k][1];
+        mostra(el, pop(t, t0, 0.28));
+        el.classList.toggle('on', ci === 2 && t >= t0 && t < t0 + 0.6);
+      });
+    }
+    legenda.style.top = ci >= 0 ? (temNum ? '640px' : '470px') : (faixaOn ? '420px' : '600px');
+    if (ci === 0) legenda.style.top = '470px';
+    // versículo grande (fala 23)
+    const versoOn = t >= W(23, 'seja') && t < LE(23) + 0.3;
+    mostra($('verso'), versoOn ? pop(t, W(23, 'seja'), 0.4) : 0);
+    if (versoOn) legenda.style.top = '860px';
+    // distintivo (fala 25, "especialidade")
+    const distOn = t >= W(25, 'especialidade') && t < LE(25) + 0.3;
+    mostra($('distintivo'), distOn ? pop(t, W(25, 'especialidade'), 0.4) : 0);
+    if (distOn) { $('contador').style.opacity = 0; chipsEl.style.opacity = 0; legenda.style.top = '660px'; } else chipsEl.style.opacity = 1;
+    // fim
+    const fimOn = t >= LE(33) + 0.35;
+    mostra($('fim'), fimOn ? pop(t, LE(33) + 0.35, 0.45) : 0);
+  }, { loop: false });
+})();
+</script>
+</body>
+</html>

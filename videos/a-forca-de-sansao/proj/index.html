@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Anton&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="studio.js"></script>
+<script src="personagens.js"></script>
+<script src="tempos.js"></script>
+<style>
+  :root { --legenda: #fdf8fc; --contorno: #352725; --destaque: #f4b24f; --numero: #d55423; --card: #f5f6f2; --tinta: #2a2f45; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #557da0; }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Nunito', sans-serif; }
+  #ceu, #estrelas, canvas { position: absolute; inset: 0; }
+  #estrelas { height: 1000px; }
+  #estrelas i { position: absolute; width: 6px; height: 6px; background: #f3efe6; }
+  canvas { width: 1080px; height: 1920px; }
+  .abs { position: absolute; }
+  #legenda { left: 70px; right: 70px; top: 600px; text-align: center; font-weight: 900; font-size: 64px; line-height: 1.12;
+    color: var(--legenda); -webkit-text-stroke: 13px var(--contorno); paint-order: stroke fill; text-shadow: 0 6px 0 var(--contorno); }
+  #legenda b { color: var(--destaque); font-weight: 900; }
+  #ref { left: 50%; top: 232px; background: rgba(42,47,69,.86); color: #fff; font-weight: 800; font-size: 34px; padding: 10px 28px 12px;
+    border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: 12px; }
+  #ref .livro { width: 26px; height: 20px; border: 4px solid #fff; border-radius: 3px; position: relative; }
+  #ref .livro::after { content: ''; position: absolute; left: 50%; top: -4px; bottom: -4px; width: 4px; margin-left: -2px; background: #fff; }
+  #contador { left: 170px; width: 740px; top: 318px; text-align: center; }
+  #contador .caixa { background: var(--card); border-radius: 24px; height: 112px; display: flex; align-items: center; justify-content: center;
+    color: var(--numero); font-weight: 900; font-size: 76px; box-shadow: 0 6px 0 rgba(53,39,37,.25); }
+  #contador .rot { margin-top: 10px; color: #fff; font-weight: 800; font-size: 34px; text-shadow: 0 3px 0 rgba(53,39,37,.7); }
+  #chips { left: 40px; right: 40px; top: 490px; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  .chip { background: var(--card); color: var(--tinta); font-weight: 900; font-size: 34px; padding: 10px 24px 12px; border-radius: 999px;
+    box-shadow: 0 5px 0 rgba(53,39,37,.25); white-space: nowrap; }
+  .chip.on { background: var(--destaque); }
+  #faixa { left: 60px; right: 60px; top: 236px; background: var(--destaque); color: var(--tinta); text-align: center; font-weight: 900;
+    font-size: 48px; padding: 18px 20px 20px; border-radius: 12px; box-shadow: 0 6px 0 rgba(53,39,37,.3); transform-origin: 50% 0; }
+  #verso { left: 80px; right: 80px; top: 290px; background: var(--card); border-radius: 30px; padding: 40px 46px 38px; text-align: center;
+    color: var(--tinta); box-shadow: 0 8px 0 rgba(53,39,37,.25); }
+  #verso .t { font-weight: 900; font-size: 30px; letter-spacing: .14em; color: var(--numero); margin-bottom: 10px; }
+  #verso .q { font-family: 'Anton', sans-serif; font-size: 82px; line-height: 1.04; text-transform: uppercase; }
+  #verso .q b { color: var(--numero); font-weight: 400; }
+  #distintivo { left: 390px; top: 290px; width: 300px; height: 300px; border-radius: 50%; background: var(--tinta); border: 14px solid var(--destaque);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+  #distintivo .t { font-weight: 900; font-size: 24px; letter-spacing: .12em; color: var(--destaque); }
+  #distintivo .n { font-family: 'Anton', sans-serif; font-size: 56px; line-height: 1.02; text-align: center; }
+  #fim { left: 50px; right: 50px; top: 280px; text-align: center; }
+  #fim .q { font-family: 'Anton', sans-serif; font-size: 140px; line-height: .98; text-transform: uppercase; color: var(--legenda);
+    -webkit-text-stroke: 14px var(--contorno); paint-order: stroke fill; text-shadow: 0 8px 0 var(--contorno); }
+  #fim .q b { color: var(--destaque); font-weight: 400; }
+  #fim .r { display: inline-block; margin-top: 26px; background: var(--destaque); color: var(--tinta); font-weight: 900; font-size: 44px;
+    padding: 12px 34px 14px; border-radius: 999px; box-shadow: 0 6px 0 rgba(53,39,37,.3); }
+  #flash { inset: 0; background: #fff6e0; opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="164.33" data-width="1080" data-height="1920">
+  <div id="ceu"></div>
+  <div id="estrelas"></div>
+  <canvas id="fundo" width="1080" height="1920"></canvas>
+  <canvas id="frente" width="1080" height="1920"></canvas>
+  <div id="flash" class="abs"></div>
+  <div id="faixa" class="abs"></div>
+  <div id="ref" class="abs"><span class="livro"></span><span id="refTxt"></span></div>
+  <div id="contador" class="abs"><div class="caixa" id="numero"></div><div class="rot" id="rotulo"></div></div>
+  <div id="chips" class="abs"></div>
+  <div id="verso" class="abs"><div class="t">VOTO DO DESBRAVADOR</div><div class="q">Pela <b>graça</b> de Deus,<br>serei puro, bondoso<br>e leal</div></div>
+  <div id="distintivo" class="abs"><div class="t">TREINO DIÁRIO</div><div class="n">MÚSCULO<br>DA FÉ</div></div>
+  <div id="legenda" class="abs"></div>
+  <div id="fim" class="abs"><div class="q">A minha <b>força</b><br>vem do Senhor</div><div class="r">Salmo 28:7</div></div>
+</div>
+<script>
+(function () {
+  const S = STUDIO, P = PERSONAGENS, T = window.TEMPOS;
+  THREE.ColorManagement.legacyMode = false;
+  const $ = (id) => document.getElementById(id);
+  const F = {}; for (const f of T.falas) F[f.id] = f;
+  const L = (id) => F[id].t0, LE = (id) => F[id].t1;
+  const W = (id, w) => { const p = F[id].palavras.find((x) => x.w.toLowerCase().replace(/[^\wà-ú-]/g, '').startsWith(w)); return p ? p.t : F[id].t0; };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = (n) => S.ease(n);
+  const seg = (t, t0, d, e) => (t < t0 ? 0 : S.seg(t, t0, d, e || 'power2.out'));
+  const janela = (t, a, b, ent, sai) => seg(t, a, ent || 0.35, 'power2.out') - seg(t, b, sai || 0.35, 'power2.in');
+
+  // ---------- dois renderizadores: fundo (pode desfocar) e frente (personagens da beira do lago) ----------
+  function novoR(id) {
+    const r = new THREE.WebGLRenderer({ canvas: $(id), antialias: true, alpha: true, preserveDrawingBuffer: true });
+    r.setPixelRatio(1); r.setSize(1080, 1920, false); r.outputEncoding = THREE.sRGBEncoding;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.setClearColor(0x000000, 0);
+    return r;
+  }
+  const rFundo = novoR('fundo'), rFrente = novoR('frente');
+  const cena = new THREE.Scene();
+  cena.fog = new THREE.Fog(0xc6a68a, 70, 230);
+  const cam = new THREE.PerspectiveCamera(30, 1080 / 1920, 0.1, 600);
+  const hemi = new THREE.HemisphereLight(0xd6e0ea, 0x55663a, 1.05); cena.add(hemi);
+  const sol = new THREE.DirectionalLight(0xffeedd, 1.1);
+  sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -14, right: 14, top: 14, bottom: -14, near: 1, far: 70 });
+  sol.shadow.radius = 8; sol.shadow.bias = -0.0004;
+  cena.add(sol, sol.target);
+  const preench = new THREE.DirectionalLight(0xbfd2ff, 0.25); cena.add(preench);
+  const tocha = new THREE.PointLight(0xff9a4a, 0, 16, 2); cena.add(tocha);
+
+  const M = (c, ex) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 1 }, ex || {}));
+  const blocoR = (pai, c, w, h, d, x, y, z, r) => { const m = new THREE.Mesh(P.geoArred(w, h, d, r == null ? 0.12 : r), M(c)); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; pai.add(m); return m; };
+
+  // ---------- mundo ----------
+  const matGrama = M(0x6c8544);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(900, 90), matGrama); chao.rotation.x = -Math.PI / 2; chao.position.z = 12; chao.receiveShadow = true; cena.add(chao);
+  const matAgua = M(0x4a6474, { roughness: 0.55 });
+  const lago = new THREE.Mesh(new THREE.PlaneGeometry(900, 400), matAgua); lago.rotation.x = -Math.PI / 2; lago.position.set(0, -0.05, -233); cena.add(lago);
+  const matMorro = M(0x5e6e4c, { flatShading: true });
+  for (const [x, z, w, h] of [[-90, -260, 120, 9], [80, -280, 140, 8], [10, -320, 90, 6], [220, -270, 120, 9], [-230, -280, 140, 8], [330, -270, 140, 9]]) {
+    const m = new THREE.Mesh(new THREE.ConeGeometry(w / 2, h, 5, 1), matMorro); m.scale.z = 0.25; m.position.set(x, h / 2 - 0.4, z); cena.add(m);
+  }
+  const rng = S.rng(21);
+  for (let i = 0; i < 50; i++) { const b = blocoR(cena, 0xa3b26a, 0.5, 0.5, 0.5, (rng() - 0.5) * 60, 0.25, -28 + rng() * 40, 0.1); if (Math.abs(b.position.x) < 6 && b.position.z > -6) b.position.x += 12; }
+
+  // personagens da beira do lago (frente)
+  const FRENTE = new THREE.Group(); cena.add(FRENTE);
+  const jesus = P.jesus(), desb = P.desbravador(); FRENTE.add(jesus, desb);
+  const JX = -1.6, DX = 1.6;
+  const matsFrente = []; FRENTE.traverse((o) => { if (o.material && !matsFrente.includes(o.material)) matsFrente.push(o.material); });
+
+  // ---------- set deserto de Timna (x = 80): areia, pedras, arbustos; Sansão e o leão ----------
+  const DXs = 80;
+  const deserto = new THREE.Group(); deserto.position.set(DXs, 0, 0); cena.add(deserto);
+  const areia = new THREE.Mesh(new THREE.PlaneGeometry(70, 60), M(0xc49a62)); areia.rotation.x = -Math.PI / 2; areia.position.set(0, 0.02, -8); areia.receiveShadow = true; deserto.add(areia);
+  for (const [x, z, s] of [[-7, -6, 2.2], [8, -9, 3], [-12, -14, 4], [12, -2, 1.6], [3, -16, 2.6]]) blocoR(deserto, 0xb58a5a, s * 1.4, s, s, x, s / 2, z, 0.25);
+  for (const [x, z] of [[-4, -10], [6, -5], [-9, -2], [9, -14]]) { blocoR(deserto, 0x7d8a4a, 1.6, 1.2, 1.6, x, 0.6, z, 0.3); blocoR(deserto, 0x8e9c56, 1.1, 0.9, 1.1, x + 0.4, 1.3, z, 0.25); }
+  const sansaoOp = { tunica: 0xb08a5a, faixa: null, cinto: 0x6b4a32, cabelo: 0x2a1a10, barba: 0x2a1a10, cabeloEstilo: 'trancas', pele: 0xd9a77f };
+  const sansao1 = P.pessoa(sansaoOp); deserto.add(sansao1);
+  const leao = P.leao(); deserto.add(leao);
+
+  // ---------- set casa de Dalila (x = 160), noite: paredes de tijolo, lamparina ----------
+  const CXd = 160;
+  const casa = new THREE.Group(); casa.position.set(CXd, 0, 0); cena.add(casa);
+  const piso = new THREE.Mesh(new THREE.PlaneGeometry(30, 30), M(0x8a6a4a)); piso.rotation.x = -Math.PI / 2; piso.position.set(0, 0.03, -3); piso.receiveShadow = true; casa.add(piso);
+  for (let i = 0; i < 9; i++) for (let k = 0; k < 6; k++) blocoR(casa, (i + k) % 2 ? 0xb88a62 : 0xa77a54, 2.0, 1.1, 0.9, -8 + i * 2.05 + (k % 2) * 1.0, 0.55 + k * 1.12, -6.5, 0.12);
+  blocoR(casa, 0x6b3a6e, 7, 1.2, 3, -3.5, 0.6, -3.6, 0.3); blocoR(casa, 0x8a4a8e, 7, 0.5, 3, -3.5, 1.4, -3.6, 0.25);
+  blocoR(casa, 0x5a3e2a, 0.8, 2.4, 0.8, 4.5, 1.2, -4.5, 0.1); const lamp = blocoR(casa, 0xf4b24f, 0.6, 0.5, 0.6, 4.5, 2.7, -4.5, 0.15); lamp.material = new THREE.MeshBasicMaterial({ color: 0xffc66a });
+  const sansao2 = P.pessoa(sansaoOp); casa.add(sansao2);
+  const dalila = P.pessoa({ tunica: 0x7a4a8c, faixa: null, barba: null, cabelo: 0x241612, cabeloEstilo: 'feminino', vestidoLongo: true, cinto: 0xd8b13a, pele: 0xe2b38c }); casa.add(dalila);
+  const tesoura = new THREE.Group(); casa.add(tesoura); blocoR(tesoura, 0xbfc5cc, 0.12, 0.9, 0.06, 0, 0, 0, 0.03).rotation.z = 0.3; blocoR(tesoura, 0xbfc5cc, 0.12, 0.9, 0.06, 0, 0, 0, 0.03).rotation.z = -0.3;
+
+  // ---------- set moinho (x = 240), dia cinzento ----------
+  const MXs = 240;
+  const moinho = new THREE.Group(); moinho.position.set(MXs, 0, 0); cena.add(moinho);
+  const terra = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), M(0x9a8a72)); terra.rotation.x = -Math.PI / 2; terra.position.set(0, 0.03, -4); terra.receiveShadow = true; moinho.add(terra);
+  blocoR(moinho, 0x8e8a80, 4.6, 1.4, 4.6, 0, 0.7, -3, 0.4); const mo = new THREE.Group(); mo.position.set(0, 1.4, -3); moinho.add(mo);
+  blocoR(mo, 0xa39e92, 3.8, 1.0, 3.8, 0, 0.5, 0, 0.45); blocoR(mo, 0x6b4a32, 0.5, 2.0, 0.5, 0, 1.5, 0, 0.1); const viga = blocoR(mo, 0x6b4a32, 4.6, 0.4, 0.4, 2.3, 1.75, 0, 0.1);
+  for (let i = 0; i < 8; i++) blocoR(moinho, 0x7a6a56, 2.2, 3.4 + (i % 3), 1.2, -12 + i * 3.4, 1.7, -12, 0.2);
+  const sansao3 = P.pessoa(sansaoOp); moinho.add(sansao3);
+
+  // ---------- set templo (x = 320): colunas e telhado que desabam ----------
+  const TXs = 320;
+  const templo = new THREE.Group(); templo.position.set(TXs, 0, 0); cena.add(templo);
+  const piso2 = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), M(0xb9a58a)); piso2.rotation.x = -Math.PI / 2; piso2.position.set(0, 0.03, -4); piso2.receiveShadow = true; templo.add(piso2);
+  const pedras = [];
+  const colunas = [[-2.3, 0], [2.3, 0], [-7, -4], [7, -4]];
+  colunas.forEach(([x, z], ci) => { for (let k = 0; k < 6; k++) pedras.push({ m: blocoR(templo, k % 2 ? 0xd2c3a6 : 0xc4b494, 1.4, 1.5, 1.4, x, 0.75 + k * 1.5, z, 0.12), x, y: 0.75 + k * 1.5, z, k, ci }); });
+  for (let i = 0; i < 8; i++) pedras.push({ m: blocoR(templo, 0xb8a98c, 2.2, 1.0, 5.6, -7.7 + i * 2.2, 9.5, -2, 0.12), x: -7.7 + i * 2.2, y: 9.5, z: -2, k: 7, ci: 4 + i });
+  const sansao4 = P.pessoa(Object.assign({}, sansaoOp, { cabeloEstilo: 'trancas' })); templo.add(sansao4);
+
+  // ---------- estrelas e lua ----------
+  { const r = S.rng(5); let h = ''; for (let i = 0; i < 70; i++) h += `<i style="left:${(r() * 1070) | 0}px;top:${(r() * 900) | 0}px;opacity:${(0.4 + r() * 0.6).toFixed(2)}"></i>`; $('estrelas').innerHTML = h; }
+  const lua = new THREE.Mesh(new THREE.CircleGeometry(5, 32), new THREE.MeshBasicMaterial({ color: 0xf3ead6, fog: false })); cena.add(lua);
+  const solDisco = new THREE.Mesh(new THREE.CircleGeometry(9, 40), new THREE.MeshBasicMaterial({ color: 0xffe9c8, fog: false })); cena.add(solDisco);
+
+  // ---------- climas ----------
+  const CLIMA = {
+    tarde: { ceu: ['#557da0', '#6b8c9f', '#d1ad8a'], fog: 0xc0a088, hemi: [0xd6e0ea, 0x55663a, 1.05], sol: [0xffeedd, 1.1], estrelas: 0, solD: 0 },
+    deserto: { ceu: ['#5b8fc0', '#94b6cf', '#f0d6a8'], fog: 0xe6cfa2, hemi: [0xeaf0f4, 0x9a7a4a, 0.95], sol: [0xfff0d8, 1.05], estrelas: 0, solD: 1 },
+    noite: { ceu: ['#141a33', '#2b2d55', '#5b4b70'], fog: 0x2b2d48, hemi: [0x6d76b0, 0x2a2420, 0.55], sol: [0xaab6e8, 0.45], estrelas: 1, solD: 0 },
+    cinza: { ceu: ['#4a535c', '#6d7378', '#9a9890'], fog: 0x7a7c78, hemi: [0xb6bcc0, 0x4a4a40, 0.9], sol: [0xd8dce0, 0.6], estrelas: 0, solD: 0 },
+    templo: { ceu: ['#3a2a48', '#8a4a4a', '#e09a5a'], fog: 0x9a6a5a, hemi: [0xe0c0b0, 0x5a4030, 0.85], sol: [0xffc890, 1.25], estrelas: 0, solD: 1 },
+  };
+  function clima(nome) {
+    const c = CLIMA[nome];
+    $('ceu').style.background = `linear-gradient(180deg, ${c.ceu[0]} 0%, ${c.ceu[1]} 40%, ${c.ceu[2]} 55%)`;
+    cena.fog.color.set(c.fog); hemi.color.set(c.hemi[0]); hemi.groundColor.set(c.hemi[1]); hemi.intensity = c.hemi[2];
+    sol.color.set(c.sol[0]); sol.intensity = c.sol[1];
+    $('estrelas').style.opacity = c.estrelas; lua.visible = nome === 'noite'; solDisco.visible = !!c.solD;
+  }
+
+  // ---------- planos de câmera ----------
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const PL = [];
+  // plano(t, clima, posição de/para, alvo de/para, foco da sombra, desfoque do fundo em px)
+  const plano = (t, cl, de, para, oDe, oPara, foco, dof) => PL.push({ t, clima: cl, de, para, olhaDe: oDe, olhaPara: oPara || oDe, foco: foco || V(0, 0, 0), dof: dof || 0 });
+  const dois = [V(0.8, 4.2, 18), V(0.3, 4.2, 16.5), V(0, 4.5, 0)];
+  const closeJ = [V(-0.5, 4.3, 14.5), V(-0.8, 4.3, 13.5), V(JX, 5.9, 0)];
+  const closeD = [V(0.9, 3.8, 14), V(1.2, 3.8, 13.0), V(DX, 5.5, 0)];
+  const baixoD = [V(1.4, 3.3, 17), V(1.6, 3.3, 16), V(1.3, 5.6, 0)];
+  const P_ = (t, pre, dof) => plano(t, 'tarde', pre[0], pre[1], pre[2], null, null, dof == null ? 8 : dof);
+  // cena 1
+  plano(0, 'tarde', V(0, 3.4, 30), V(0, 3.4, 27), V(0, 5.4, 0));
+  P_(L(1) + 0.4, baixoD, 3);
+  P_(L(2), closeJ);
+  P_(L(3), closeD);
+  // cena 2: deserto
+  plano(L(4) - 0.6, 'deserto', V(DXs + 2, 3.4, 19), V(DXs + 1, 3.2, 16.5), V(DXs, 5.4, 0), V(DXs, 5.2, 0), V(DXs, 0, 0));
+  plano(W(4, 'ele'), 'deserto', V(DXs - 6, 9, 22), V(DXs - 3, 7, 19), V(DXs, 2.5, -2), V(DXs, 3, -2), V(DXs, 0, 0));
+  plano(L(5), 'deserto', V(DXs + 3, 4.5, 26), V(DXs + 2.5, 4.2, 23), V(DXs + 1.5, 3.4, -2.5), V(DXs + 1.5, 3.2, -2.5), V(DXs, 0, -2));
+  plano(W(5, 'venceu'), 'deserto', V(DXs + 2, 3.0, 20), V(DXs + 1.6, 3.2, 18), V(DXs + 1.2, 4.0, -2), V(DXs + 1.2, 4.2, -2), V(DXs, 0, -2));
+  P_(L(6), closeD);
+  P_(L(7), closeJ);
+  // cena 3: Dalila
+  P_(L(8) - 0.6, closeD);
+  P_(L(9), closeJ);
+  plano(W(9, 'ia'), 'noite', V(CXd + 1, 4.4, 24), V(CXd + 0.5, 4.2, 22), V(CXd, 4.4, -2.5), V(CXd, 4.2, -2.5), V(CXd, 0, -2));
+  plano(L(10), 'noite', V(CXd + 3, 3.8, 20), V(CXd + 2.4, 3.6, 18.5), V(CXd + 0.2, 4.6, -2.5), V(CXd + 0.2, 4.4, -2.5), V(CXd, 0, -2));
+  plano(L(11), 'noite', V(CXd - 15, 5.4, 9), V(CXd - 13.5, 5.0, 8), V(CXd - 1.0, 3.2, -2.6), V(CXd - 1.0, 3.0, -2.6), V(CXd, 0, -2));
+  P_(L(12), closeD);
+  P_(L(13), dois, 2);
+  // cena 4: moinho e templo
+  P_(L(14) - 0.6, closeD);
+  plano(L(15), 'cinza', V(MXs + 5, 10, 33), V(MXs + 4, 9, 30), V(MXs, 2.4, -3), V(MXs, 2.4, -3), V(MXs, 0, -3));
+  plano(W(15, 'mas'), 'cinza', V(MXs + 2, 5.0, 24), V(MXs + 1.5, 4.8, 22), V(MXs, 4.2, -3), V(MXs, 4.2, -3), V(MXs, 0, -3));
+  plano(L(16), 'templo', V(TXs, 3.0, 18), V(TXs, 3.2, 14), V(TXs, 5.5, -1), V(TXs, 5.5, -1), V(TXs, 0, -1));
+  plano(W(16, 'senhor'), 'templo', V(TXs + 0.4, 4.2, 8.5), V(TXs + 0.2, 4.4, 7.4), V(TXs, 4.6, 0), V(TXs, 4.8, 0), V(TXs, 0, 0));
+  plano(L(17), 'templo', V(TXs, 6, 30), V(TXs, 7, 34), V(TXs, 4, -2), V(TXs, 3.6, -2), V(TXs, 0, -1));
+  // cena 5
+  P_(L(18) - 0.8, closeD);
+  P_(L(19), closeJ);
+  // cena 6
+  P_(L(20) - 0.6, closeD);
+  plano(L(21), 'tarde', V(0.6, 3.4, 20), V(0.2, 3.4, 18.5), V(0, 5.8, 0), null, null, 2);
+  P_(L(22), closeJ);
+  plano(L(23) - 0.3, 'tarde', V(0.6, 2.6, 21), V(0.6, 2.6, 19), V(0.4, 6.6, 0), null, null, 2);
+  P_(L(24), closeJ);
+  // cena 7
+  plano(L(25) - 0.8, 'tarde', V(1.4, 3.4, 18), V(1.6, 3.4, 16.5), V(1.3, 5.6, 0), null, null, 3);
+  P_(L(26), closeJ);
+  plano(L(27), 'tarde', V(1.5, 3.9, 13.5), V(1.5, 3.9, 12.4), V(1.5, 5.2, 0), null, null, 5);
+  plano(LE(27) + 0.4, 'tarde', V(0, 2.4, 31), V(0, 2.8, 27), V(0, 6.6, 0));
+  window.__PL = PL;
+  const planoEm = (t) => { let i = 0; while (i + 1 < PL.length && PL[i + 1].t <= t) i++; return i; };
+
+  // ---------- fala, boca, gestos ----------
+  const boca = (q, t) => { const a = T.boca[q]; return a[clamp(Math.floor(t * T.fps), 0, a.length - 1)] || 0; };
+  const bocaSuave = (q, t) => { let s = 0; for (let k = -6; k <= 0; k++) s += boca(q, t + k / T.fps); return s / 7; };
+  const piscar = (t, f) => { const c = (t + f) % 3.9; return Math.max(0, 1 - Math.abs(c - 3.7) / 0.07); };
+  const falaEm = (t) => T.falas.find((f) => t >= f.t0 - 0.05 && t <= f.t1 + 0.05);
+  const pop = (t, t0, d) => (t < t0 ? 0 : S.seg(t, t0, d || 0.35, 'back.out(1.6)'));
+  function mostra(el, p, base) { el.style.opacity = p > 0.001 ? 1 : 0; el.style.transform = (base || '') + ` scale(${0.85 + 0.15 * p})`; }
+
+  const CHIPS = [
+    { t0: L(10), t1: LE(10) + 0.3, num: 'x', rot: 'vezes que Dalila perguntou', itens: [] },
+    { t0: W(21, 'perto'), t1: LE(21) + 0.3, num: '3', rot: 'jeitos de ser forte de verdade', itens: [['perto do Pai', W(21, 'perto')], ['bons amigos', W(21, 'escolher')], ['dizer não', W(21, 'dizer')]] },
+    { t0: W(25, 'oração'), t1: LE(25) + 0.2, num: null, rot: '', itens: [['oração todo dia', W(25, 'oração')]] },
+  ];
+  const contagem = [[W(10, 'uma'), '1ª'], [W(10, 'duas'), '2ª'], [W(10, 'três'), '3ª'], [W(10, 'quarta'), '4ª']];
+  const FAIXAS = [
+    [W(7, 'era'), LE(7) + 0.4, 'A FORÇA ERA DE DEUS'],
+    [W(13, 'começa'), LE(13) + 0.4, 'O PECADO COMEÇA PEQUENO'],
+    [W(19, 'com'), LE(19) + 0.5, 'COM DEUS DÁ PRA RECOMEÇAR'],
+  ];
+  const legenda = $('legenda'), refTxt = $('refTxt'), chipsEl = $('chips');
+  let ultHtml = null, ultRef = null, ultChips = -1, ultFaixa = null;
+
+  function desenhar(rend, so) {
+    // so = 'fundo': personagens da frente só fazem sombra; 'frente': só eles aparecem
+    for (const m of matsFrente) { m.colorWrite = so !== 'fundo'; m.depthWrite = so !== 'fundo'; }
+    const bg = cena.children.filter((o) => o !== FRENTE && !o.isLight);
+    if (so === 'frente') bg.forEach((o) => { o.userData.vis = o.visible; o.visible = false; });
+    rend.render(cena, cam);
+    if (so === 'frente') bg.forEach((o) => { o.visible = o.userData.vis; });
+  }
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = S.play(function render(t) {
+    const ip = planoEm(t), pl = PL[ip], fimPl = ip + 1 < PL.length ? PL[ip + 1].t : S.D;
+    const p = ease('sine.inOut')(clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1));
+    clima(pl.clima);
+    cam.position.lerpVectors(pl.de, pl.para, p);
+    cam.lookAt(new THREE.Vector3().lerpVectors(pl.olhaDe, pl.olhaPara, p));
+    sol.position.set(pl.foco.x - 4, 20, pl.foco.z + 10); sol.target.position.copy(pl.foco);
+    preench.position.set(pl.foco.x + 8, 6, pl.foco.z + 8);
+    lua.position.set(cam.position.x - 30, 34, cam.position.z - 120); lua.lookAt(cam.position);
+    solDisco.position.set(cam.position.x + 22, 26, cam.position.z - 160); solDisco.lookAt(cam.position);
+    $('fundo').style.filter = pl.dof ? `blur(${pl.dof}px)` : 'none';
+
+    // ---------- beira do lago ----------
+    const f = falaEm(t);
+    const bJ = boca('J', t), bD = boca('D', t), gJ = bocaSuave('J', t), gD = bocaSuave('D', t);
+    const chega = ease('power2.out')(clamp((t - 0.2) / 1.7, 0, 1));
+    desb.position.set(S.mix(13, DX, chega), 0, 0);
+    const correndo = t < 1.9;
+    let olhJ = 0.3, olhD = -0.3;
+    const fim = t > LE(27) - 2.3;
+    if (t > L(27) - 0.1 && t < LE(27) + 0.4) olhD = S.mix(-0.3, 0.12, seg(t, L(27) - 0.1, 0.3));
+    // gestos do Desbravador por fala
+    const flex1 = janela(t, L(1) + 1.2, LE(1) + 0.2, 0.3, 0.3);
+    const flex2 = janela(t, L(25) + 0.6, LE(25), 0.3, 0.3) + janela(t, L(27) + 0.2, S.D + 9, 0.3, 0.3);
+    const cabeca = janela(t, L(3), LE(3), 0.25, 0.25);
+    const susto = janela(t, L(6) - 0.1, LE(6) + 0.2, 0.15, 0.3) + janela(t, L(18) - 0.1, LE(18), 0.15, 0.3);
+    const triste = janela(t, L(12) - 0.2, LE(12) + 0.5, 0.4, 0.4);
+    const pensa = janela(t, L(20) - 0.2, LE(20) + 0.2, 0.3, 0.3);
+    const cont = janela(t, L(23) - 0.2, LE(23) + 0.2, 0.3, 0.3);
+    const pulo = Math.sin(clamp((t - L(6)) / 0.45, 0, 1) * Math.PI) * 0.6 + Math.sin(clamp((t - W(25, 'oração')) / 0.45, 0, 1) * Math.PI) * 0.5;
+    let dBD = null, dBE = null;
+    if (flex1 + flex2 > 0.01) { const k = clamp(flex1 + flex2, 0, 1); dBD = { x: -0.15 * k, z: 1.35 * k, cx: 0, cz: 1.9 * k }; if (flex2 > 0.01) dBE = { x: -0.15 * k, z: 1.35 * k, cx: 0, cz: 1.9 * k }; }
+    else if (cabeca > 0.01) dBD = { x: -2.4 * cabeca, z: 0.5 * cabeca, cx: -1.2 * cabeca, cz: 0 };
+    else if (pensa > 0.01) dBD = { x: -1.3 * pensa, z: 0.2 * pensa, cx: -2.0 * pensa, cz: 0 };
+    else if (cont > 0.01) dBD = { x: -0.5 * cont, z: 1.25 * cont, cx: 0, cz: 1.95 * cont };
+    else if (gD > 0.2) dBD = { x: -0.5 * gD, z: 0.15 * gD, cx: -0.9 * gD, cz: 0 };
+    P.pose(desb, {
+      andar: correndo ? t * 3.4 : null, respirar: S.wave(t, 50) + (t < 3 ? 1.6 * Math.sin(t * 10) : 0), falar: bD, fase: t, piscar: piscar(t, 1.9),
+      olhar: correndo ? 0 : olhD, baixar: 0.3 * triste - 0.12 * flex2 + 0.08 * pensa, inclinar: 0.12 * pensa, sobr: susto - 0.5 * triste, arregalar: susto,
+      bD: dBD, bE: dBE, balancar: Math.sin(t * 1.3),
+    });
+    desb.position.y = pulo + (correndo ? 0.12 * Math.abs(Math.sin(t * 3.4 * Math.PI)) : 0);
+    // Jesus: gesticula enquanto fala, ri na fala 2 e 26, mão no ombro no fim
+    const ri = janela(t, L(2), L(2) + 1.0, 0.1, 0.3) + janela(t, L(26), L(26) + 1.0, 0.1, 0.3);
+    const ombro = janela(t, L(26) + 2.2, S.D + 9, 0.5, 0.3);
+    const lado = Math.floor(t / 2.7) % 2;
+    let jBD = null, jBE = null;
+    if (ombro > 0.01) jBD = { x: -0.25 * ombro, z: 1.15 * ombro, cx: -0.15 * ombro, cz: 0.1 * ombro };
+    else if (gJ > 0.15) { const g = { x: -0.55 * gJ, z: 0.12 * gJ, cx: -1.0 * gJ, cz: 0 }; if (lado) jBD = g; else jBE = g; }
+    P.pose(jesus, { respirar: S.wave(t, 42), falar: bJ, fase: t + 1, piscar: piscar(t, 0.4), olhar: olhJ, balancar: Math.sin(t * 1.1 + 1),
+      bD: jBD, bE: jBE, baixar: -0.05 * ri });
+    jesus.position.set(JX, 0.12 * Math.abs(Math.sin(ri * Math.PI * 3)) * ri, 0);
+    if (t > L(26) + 2.0) desb.position.x = S.mix(DX, 1.25, seg(t, L(26) + 2.0, 0.6, 'power2.inOut'));
+
+    // ---------- deserto: Sansão consagrado e o leão ----------
+    sansao1.position.set(0, 0, 0); sansao1.rotation.y = 0;
+    const ataque = clamp((t - W(5, 'rugiu')) / 1.2, 0, 1), vence = seg(t, W(5, 'venceu'), 0.6, 'power2.in');
+    leao.position.set(S.mix(4.5, 1.4, ease('power2.in')(ataque)), 2.2 * Math.sin(ataque * Math.PI) * (ataque < 1 ? 1 : 0), -2.5);
+    leao.rotation.set(0, -1.57, (1.4 * vence));
+    if (t < L(5)) { leao.position.set(9, 0, -9); }
+    const brigando = t > W(5, 'rugiu') && t < LE(5) + 1;
+    sansao1.rotation.y = brigando ? 0.9 : 0;
+    P.pose(leao, { rugir: brigando && vence < 0.5 ? 0.6 + 0.4 * Math.sin(t * 9) : 0.1, fase: t, andar: t < W(5, 'rugiu') ? t * 1.5 : null });
+    P.pose(sansao1, { respirar: S.wave(t, 30), piscar: piscar(t, 0.2), falar: 0,
+      bE: brigando ? { x: -1.6, z: 0.3, cx: -0.3, cz: 0 } : { x: -0.2, z: -0.1, cx: -0.2, cz: 0 },
+      bD: brigando ? { x: -1.6, z: 0.3, cx: -0.3, cz: 0 } : { x: -2.9 * seg(t, W(4, 'consagrado'), 0.5), z: 0.2, cx: 0, cz: 0 }, baixar: brigando ? 0.15 : -0.15 });
+
+    // ---------- casa de Dalila ----------
+    sansao2.position.set(-1.5, 0, -2.4); sansao2.rotation.y = 0.5; dalila.position.set(1.6, 0, -2.0); dalila.rotation.y = -0.6;
+    const corta = seg(t, W(11, 'cortaram'), 0.2);
+    sansao2.userData.trancas.forEach((tr, i) => {
+      const q = clamp((t - W(11, 'cortaram') - i * 0.12) / 0.9, 0, 1);
+      tr.visible = true; tr.position.y = 0.4 - q * 3.2 * q; tr.rotation.x = q * 1.2;
+      if (t < W(11, 'cortaram')) { tr.position.y = 0.4; tr.rotation.x = 0; }
+    });
+    tesoura.position.set(-0.6, 5.2 - 0.3 * Math.sin(t * 12) * corta, -2.6); tesoura.visible = t > W(11, 'quando') - 0.3 && t < LE(11) - 1;
+    const perg = t > L(10) && t < LE(10);
+    P.pose(dalila, { respirar: S.wave(t, 30, 0.2), piscar: piscar(t, 1.1), falar: perg ? 0.5 + 0.4 * Math.sin(t * 11) : 0, fase: t, inclinar: 0.12,
+      bD: perg ? { x: -0.8, z: 0.4, cx: -1.0, cz: 0 } : null });
+    P.pose(sansao2, { respirar: S.wave(t, 30), piscar: t > W(11, 'cortaram') ? 0.9 : piscar(t, 0.7), baixar: t > L(10) ? 0.15 : 0, inclinar: -0.08 });
+
+    // ---------- moinho: Sansão gira, o cabelo volta a crescer ----------
+    const ang = (t - L(15)) * 0.55;
+    mo.rotation.y = -ang;
+    const raioM = 3.6;
+    sansao3.position.set(Math.cos(-ang) * raioM * 0 + Math.cos(ang) * 0, 0, 0);
+    { const a = -ang; const px = Math.cos(a) * raioM, pz = -Math.sin(a) * raioM; sansao3.position.set(px, 0, -3 + pz); sansao3.rotation.y = a - Math.PI / 2 + Math.PI; }
+    const cresce = seg(t, W(15, 'crescer') - 0.2, 2.2, 'power1.out');
+    sansao3.userData.trancas.forEach((tr) => { tr.scale.set(1, 0.05 + 0.95 * cresce, 1); tr.position.y = 0.4; tr.rotation.x = 0; });
+    P.pose(sansao3, { andar: t * 1.3, bE: { x: -1.5, z: 0.2, cx: -0.3, cz: 0 }, bD: { x: -1.5, z: 0.2, cx: -0.3, cz: 0 }, baixar: 0.3, piscar: 0.9 });
+
+    // ---------- templo: a oração e a resposta ----------
+    sansao4.position.set(0, 0, 0.2);
+    const ora = seg(t, W(16, 'senhor'), 0.6);
+    P.pose(sansao4, { respirar: S.wave(t, 40), bE: { x: -0.2, z: 1.2 + 0.1 * ora, cx: 0, cz: 0 }, bD: { x: -0.2, z: 1.2 + 0.1 * ora, cx: 0, cz: 0 },
+      baixar: -0.35 * ora, piscar: ora > 0.5 ? 0.9 : piscar(t, 0.5), falar: t > W(16, 'senhor') && t < LE(16) ? boca('J', t) * 0.6 : 0, fase: t });
+    const cai = t - W(17, 'respondeu');
+    for (const pd of pedras) {
+      if (cai <= 0) { pd.m.position.set(pd.x, pd.y, pd.z); pd.m.rotation.set(0, 0, 0); continue; }
+      const atraso = pd.ci < 2 ? 0.05 * (5 - pd.k) : 0.25 + 0.04 * pd.ci, tt = Math.max(0, cai - atraso);
+      const r = S.rng(pd.ci * 31 + pd.k * 7 + 1); const vx = (r() - 0.5) * 6 + (pd.x > 0 ? 2 : -2), vz = (r() - 0.2) * 4;
+      const y = Math.max(0.5, pd.y - 9.8 * 0.5 * tt * tt);
+      pd.m.position.set(pd.x + vx * tt * 0.6, y, pd.z + vz * tt * 0.6); pd.m.rotation.set(tt * (r() * 3), 0, tt * (r() - 0.5) * 4);
+    }
+    $('flash').style.opacity = cai > 0 ? Math.max(0, 0.7 - cai * 2.6) : 0;
+    tocha.position.set(CXd + 4.5, 3.2, -3.6); tocha.intensity = pl.clima === 'noite' ? 3.2 : 0;
+
+    // ---------- desenha ----------
+    const naPraia = Math.abs(pl.foco.x) < 20;
+    FRENTE.visible = naPraia;
+    if (naPraia) { desenhar(rFundo, 'fundo'); desenhar(rFrente, 'frente'); $('frente').style.display = 'block'; }
+    else { for (const m of matsFrente) { m.colorWrite = true; m.depthWrite = true; } rFundo.render(cena, cam); $('frente').style.display = 'none'; }
+
+    // ---------- textos ----------
+    let html = '';
+    if (f) { const c = f.chunks.find((c) => t >= c.t0 && t < c.t1); if (c) html = c.html; }
+    if (html !== ultHtml) { legenda.innerHTML = html; ultHtml = html; }
+    const fr = T.falas.find((x) => x.ref && t >= x.t0 - 0.1 && t <= x.t1 + 0.3);
+    const refAtiva = fr ? fr.ref : null;
+    if (refAtiva !== ultRef) { if (refAtiva) refTxt.textContent = refAtiva; ultRef = refAtiva; }
+    mostra($('ref'), refAtiva ? pop(t, fr.t0 - 0.1, 0.3) : 0, 'translateX(-50%)');
+    const fx = FAIXAS.find((x) => t >= x[0] && t < x[1]);
+    if ((fx ? fx[2] : null) !== ultFaixa) { if (fx) $('faixa').textContent = fx[2]; ultFaixa = fx ? fx[2] : null; }
+    mostra($('faixa'), fx ? pop(t, fx[0], 0.35) : 0);
+    const ci = CHIPS.findIndex((c) => t >= c.t0 && t < c.t1);
+    if (ci !== ultChips) { chipsEl.innerHTML = ci >= 0 ? CHIPS[ci].itens.map((x) => `<span class="chip">${x[0]}</span>`).join('') : ''; if (ci >= 0) $('rotulo').textContent = CHIPS[ci].rot; ultChips = ci; }
+    const temNum = ci >= 0 && CHIPS[ci].num != null;
+    if (ci === 0) { let n = ''; for (const [tt, x] of contagem) if (t >= tt) n = x; $('numero').textContent = n || '?'; }
+    else if (temNum) $('numero').textContent = CHIPS[ci].num;
+    const ultimoPulo = ci === 0 ? contagem.reduce((a, [tt]) => (t >= tt ? tt : a), CHIPS[0].t0) : (ci >= 0 ? CHIPS[ci].t0 : 0);
+    mostra($('contador'), temNum ? pop(t, ultimoPulo, 0.3) : 0);
+    $('chips').style.top = temNum ? '490px' : '330px';
+    if (ci >= 0) [...chipsEl.children].forEach((el, k) => { const t0 = CHIPS[ci].itens[k][1]; mostra(el, pop(t, t0, 0.28)); el.classList.toggle('on', t >= t0 && t < t0 + 0.6); });
+    let topo = 600;
+    if (fx) topo = 420; if (ci >= 0) topo = temNum ? 650 : 470;
+    const versoOn = t >= W(23, 'graça') - 0.1 && t < LE(23) + 0.4; mostra($('verso'), versoOn ? pop(t, W(23, 'graça') - 0.1, 0.4) : 0); if (versoOn) topo = 860;
+    const distOn = t >= W(25, 'fé') - 0.1 && t < LE(25) + 0.2; mostra($('distintivo'), distOn ? pop(t, W(25, 'fé') - 0.1, 0.4) : 0); if (distOn) { topo = 660; chipsEl.style.top = '620px'; }
+    legenda.style.top = topo + 'px';
+    const fimOn = t >= LE(27) + 0.4; mostra($('fim'), fimOn ? pop(t, LE(27) + 0.4, 0.45) : 0);
+    if (fimOn) legenda.innerHTML = '';
+  }, { loop: false });
+})();
+</script>
+</body>
+</html>

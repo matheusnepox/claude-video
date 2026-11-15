@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Anton&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="studio.js"></script>
+<script src="personagens.js"></script>
+<script src="tempos.js"></script>
+<style>
+  :root { --legenda: #fdf8fc; --contorno: #352725; --destaque: #f4b24f; --numero: #d55423; --card: #f5f6f2; --tinta: #2a2f45; --ok: #3f9a52; --nao: #d0443a; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: #6a9cc8; }
+  #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: 'Nunito', sans-serif; }
+  #ceu, canvas { position: absolute; inset: 0; }
+  canvas { width: 1080px; height: 1920px; }
+  .abs { position: absolute; }
+  #legenda { left: 70px; right: 70px; top: 600px; text-align: center; font-weight: 900; font-size: 64px; line-height: 1.12;
+    color: var(--legenda); -webkit-text-stroke: 13px var(--contorno); paint-order: stroke fill; text-shadow: 0 6px 0 var(--contorno); }
+  #legenda b { color: var(--destaque); font-weight: 900; }
+  #serie { left: 50%; top: 232px; background: rgba(42,47,69,.88); color: #fff; font-weight: 900; font-size: 30px; padding: 12px 30px 14px; border-radius: 999px; white-space: nowrap; letter-spacing: .06em; }
+  #serie b { color: var(--destaque); }
+  #aviso { left: 60px; right: 60px; top: 236px; background: var(--nao); color: #fff; text-align: center; font-weight: 900; font-size: 42px;
+    padding: 16px 20px 18px; border-radius: 12px; box-shadow: 0 6px 0 rgba(53,39,37,.3); }
+  #aviso small { display: block; font-size: 28px; font-weight: 800; opacity: .95; }
+  #contador { left: 140px; width: 800px; top: 300px; text-align: center; }
+  #contador .caixa { background: var(--card); border-radius: 24px; min-height: 112px; padding: 10px 20px; display: flex; align-items: center; justify-content: center;
+    color: var(--numero); font-family: 'Anton', sans-serif; font-size: 70px; line-height: 1; text-transform: uppercase; box-shadow: 0 6px 0 rgba(53,39,37,.25); }
+  #contador .rot { margin-top: 10px; color: #fff; font-weight: 800; font-size: 34px; text-shadow: 0 3px 0 rgba(53,39,37,.7); }
+  #chips { left: 40px; right: 40px; top: 480px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .chip { background: var(--card); color: var(--tinta); font-weight: 900; font-size: 34px; padding: 10px 24px 12px; border-radius: 999px; box-shadow: 0 5px 0 rgba(53,39,37,.25); white-space: nowrap; }
+  .chip.on { background: var(--destaque); }
+  #esp { left: 390px; top: 290px; width: 300px; height: 300px; border-radius: 50%; background: var(--tinta); border: 14px solid var(--destaque); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #fff; text-align: center; }
+  #esp .t { font-weight: 900; font-size: 22px; letter-spacing: .14em; color: var(--destaque); }
+  #esp .n { font-family: 'Anton', sans-serif; font-size: 44px; line-height: 1.02; }
+  #fim { left: 50px; right: 50px; top: 270px; text-align: center; }
+  #fim .p { display: inline-block; background: var(--nao); color: #fff; font-weight: 900; font-size: 32px; letter-spacing: .08em; padding: 12px 30px 14px; border-radius: 999px; }
+  #fim .q { margin-top: 20px; font-family: 'Anton', sans-serif; font-size: 136px; line-height: .98; text-transform: uppercase; color: var(--legenda);
+    -webkit-text-stroke: 14px var(--contorno); paint-order: stroke fill; text-shadow: 0 8px 0 var(--contorno); }
+  #fim .q b { color: var(--destaque); font-weight: 400; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="181.55" data-width="1080" data-height="1920">
+  <div id="ceu"></div>
+  <canvas id="fundo" width="1080" height="1920"></canvas>
+  <canvas id="frente" width="1080" height="1920"></canvas>
+  <div id="serie" class="abs">ACAMPAMENTO DO DESBRAVADOR · <b>COZINHA AO AR LIVRE</b></div>
+  <div id="aviso" class="abs">SÓ COM SUPERVISÃO<small>de um conselheiro ou adulto responsável</small></div>
+  <div id="esp" class="abs"><div class="t">ESPECIALIDADE</div><div class="n">FOGUEIRAS E<br>COZINHA AO<br>AR LIVRE</div></div>
+  <div id="contador" class="abs"><div class="caixa" id="numero"></div><div class="rot" id="rotulo"></div></div>
+  <div id="chips" class="abs"></div>
+  <div id="legenda" class="abs"></div>
+  <div id="fim" class="abs"><div class="p">SÓ COM SUPERVISÃO</div><div class="q">Segurança<br>vem <b>primeiro</b></div></div>
+</div>
+<script>
+(function () {
+  const S = STUDIO, P = PERSONAGENS, T = window.TEMPOS;
+  THREE.ColorManagement.legacyMode = false;
+  const $ = (id) => document.getElementById(id);
+  const F = {}; for (const f of T.falas) F[f.id] = f;
+  const L = (id) => F[id].t0, LE = (id) => F[id].t1;
+  const W = (id, w, n) => { const ps = F[id].palavras.filter((x) => x.w.toLowerCase().replace(/[^\wà-ú-]/g, '').startsWith(w)); const p = ps[(n || 1) - 1] || ps[0]; return p ? p.t : F[id].t0; };
+  const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+  const ease = (n) => S.ease(n);
+  const seg = (t, t0, d, e) => (t < t0 ? 0 : S.seg(t, t0, d, e || 'power2.out'));
+  const janela = (t, a, b, ent, sai) => seg(t, a, ent || 0.35, 'power2.out') - seg(t, b, sai || 0.35, 'power2.in');
+  const pop = (t, t0, d) => (t < t0 ? 0 : S.seg(t, t0, d || 0.35, 'back.out(1.6)'));
+  function mostra(el, p, base) { el.style.opacity = p > 0.001 ? 1 : 0; el.style.transform = (base || '') + ` scale(${0.85 + 0.15 * p})`; }
+
+  function novoR(id) {
+    const r = new THREE.WebGLRenderer({ canvas: $(id), antialias: true, alpha: true, preserveDrawingBuffer: true });
+    r.setPixelRatio(1); r.setSize(1080, 1920, false); r.outputEncoding = THREE.sRGBEncoding;
+    r.shadowMap.enabled = true; r.shadowMap.type = THREE.PCFSoftShadowMap; r.setClearColor(0x000000, 0); return r;
+  }
+  const rFundo = novoR('fundo'), rFrente = novoR('frente');
+  const cena = new THREE.Scene(); cena.fog = new THREE.Fog(0xb8cbd8, 70, 240);
+  const cam = new THREE.PerspectiveCamera(30, 1080 / 1920, 0.1, 600);
+  const hemi = new THREE.HemisphereLight(0xdfeaf4, 0x5a6e3e, 1.1); cena.add(hemi);
+  const sol = new THREE.DirectionalLight(0xfff2e0, 1.2); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -16, right: 16, top: 16, bottom: -16, near: 1, far: 80 }); sol.shadow.radius = 8; sol.shadow.bias = -0.0004;
+  cena.add(sol, sol.target);
+  const preench = new THREE.DirectionalLight(0xbfd2ff, 0.25); cena.add(preench);
+  const fogoLuz = new THREE.PointLight(0xff9a4a, 0, 12, 2); cena.add(fogoLuz);
+  const M = (c, ex) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 1 }, ex || {}));
+  const MB = (c) => new THREE.MeshBasicMaterial({ color: c });
+  const bR = (pai, c, w, h, d, x, y, z, r) => { const m = new THREE.Mesh(P.geoArred(w, h, d, r == null ? 0.12 : r), M(c)); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; pai.add(m); return m; };
+  const rng = S.rng(61);
+  const metal = (m) => { m.material = M(0xc0c6cc, { roughness: 0.3, metalness: 0.6 }); return m; };
+
+  // ---------- mundo ----------
+  const matGrama = M(0x6c8a44);
+  const chao = new THREE.Mesh(new THREE.PlaneGeometry(500, 80), matGrama); chao.rotation.x = -Math.PI / 2; chao.position.z = 5; chao.receiveShadow = true; cena.add(chao);
+  const lago = new THREE.Mesh(new THREE.PlaneGeometry(500, 300), M(0x4f7a92, { roughness: 0.45 })); lago.rotation.x = -Math.PI / 2; lago.position.set(0, -0.08, -185); cena.add(lago);
+  const matMorro = M(0x5e744c, { flatShading: true });
+  for (const [x, z, w, h] of [[-80, -230, 120, 10], [60, -250, 140, 9], [160, -230, 120, 11], [-160, -240, 140, 9]]) { const m = new THREE.Mesh(new THREE.ConeGeometry(w / 2, h, 5, 1), matMorro); m.scale.z = 0.25; m.position.set(x, h / 2 - 0.4, z); cena.add(m); }
+  function arvore(x, z, s) { const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); cena.add(g); bR(g, 0x6b4a32, 0.7, 4, 0.7, 0, 2, 0, 0.12); bR(g, 0x4f7a3c, 3.4, 2.4, 3.4, 0, 4.6, 0, 0.5); bR(g, 0x5c8a46, 2.4, 1.8, 2.4, 0.3, 6.0, 0.2, 0.45); return g; }
+  for (let i = 0; i < 30; i++) arvore(-60 + i * 6 + rng() * 3, -28 + rng() * 5, 0.9 + rng() * 0.5);
+  for (let i = 0; i < 60; i++) { const b = bR(cena, 0xa3b26a, 0.5, 0.5, 0.5, -50 + rng() * 160, 0.25, -20 + rng() * 34, 0.1); if (Math.abs(b.position.x) < 8 && b.position.z > -6) b.position.x += 16; }
+  // base: barraca ao fundo
+  function barraca(cor) {
+    const g = new THREE.Group(), w = 3.2, h = 2.3, d = 3.6, ang = Math.atan2(h, w / 2), lado = Math.hypot(h, w / 2);
+    for (const s of [-1, 1]) { const p = bR(g, cor, lado, 0.14, d, s * w / 4, h / 2, 0, 0.06); p.rotation.z = -s * ang; }
+    const tri = new THREE.Shape(); tri.moveTo(-w / 2, 0); tri.lineTo(w / 2, 0); tri.lineTo(0, h); tri.closePath();
+    const fr = new THREE.Mesh(new THREE.ShapeGeometry(tri), M(0x2f4a5a)); fr.position.z = d / 2 - 0.05; g.add(fr);
+    const fu = new THREE.Mesh(new THREE.ShapeGeometry(tri), M(cor)); fu.position.z = -d / 2 + 0.02; fu.rotation.y = Math.PI; g.add(fu);
+    return g;
+  }
+  const b1 = barraca(0xe07a3a); b1.position.set(-4, 0, -9); b1.rotation.y = 0.3; cena.add(b1);
+  const b2 = barraca(0x3f7a9a); b2.position.set(5, 0, -11); b2.rotation.y = -0.2; cena.add(b2);
+
+  // ---------- ferramentas (na mão direita do Desbravador) ----------
+  function machadinha() { const g = new THREE.Group(); bR(g, 0x8a5a32, 0.16, 1.5, 0.16, 0, -0.5, 0, 0.05); const c = metal(bR(g, 0xc0c6cc, 0.7, 0.4, 0.12, 0.2, 0.15, 0, 0.04)); c.position.set(0.22, 0.18, 0); const bainha = bR(g, 0x5a3a22, 0.32, 0.46, 0.18, 0.42, 0.18, 0, 0.04); g.userData.bainha = bainha; return g; }
+  function facao() { const g = new THREE.Group(); bR(g, 0x2a2a2a, 0.16, 0.6, 0.18, 0, -0.1, 0, 0.05); metal(bR(g, 0, 0.26, 1.9, 0.05, 0, 1.15, 0, 0.03)); return g; }
+  function faca() { const g = new THREE.Group(); bR(g, 0x6b4a32, 0.16, 0.5, 0.16, 0, -0.05, 0, 0.05); metal(bR(g, 0, 0.18, 0.75, 0.04, 0, 0.6, 0, 0.02)); return g; }
+  function canivete() { const g = new THREE.Group(); bR(g, 0xc83228, 0.2, 0.6, 0.14, 0, 0, 0, 0.05); const piv = new THREE.Group(); piv.position.set(0, 0.28, 0); g.add(piv); metal(bR(piv, 0, 0.13, 0.55, 0.03, 0, 0.28, 0, 0.02)); g.userData.piv = piv; return g; }
+  const FERR = { machadinha: machadinha(), facao: facao(), faca: faca(), canivete: canivete() };
+  const graveto = bR(cena, 0x8a6a42, 0.12, 1.2, 0.12, 0, 0, 0, 0.04);
+  const espeto = new THREE.Group(); bR(espeto, 0x8a6a42, 0.1, 2.6, 0.1, 0, 0.9, 0, 0.03); for (let i = 0; i < 5; i++) bR(espeto, 0xe8c48a, 0.34, 0.22, 0.34, 0, 1.6 + i * 0.2, 0, 0.1).rotation.y = i * 0.8;
+  const fosforo = new THREE.Group(); bR(fosforo, 0xe0c890, 0.06, 0.5, 0.06, 0, 0.2, 0, 0.02); bR(fosforo, 0xc83228, 0.1, 0.12, 0.1, 0, 0.48, 0, 0.04); const chamaF = bR(fosforo, 0xf4b24f, 0.14, 0.24, 0.14, 0, 0.66, 0, 0.06); chamaF.material = MB(0xf4b24f);
+  // ---------- área de lenha (x = -14): cepo, toras, mato ----------
+  const LX = -14;
+  const cepo = bR(cena, 0x7a5a3a, 1.5, 0.9, 1.5, LX + 1.2, 0.45, -1.2, 0.2);
+  const tora = bR(cena, 0xa07a50, 0.6, 1.0, 0.6, LX + 1.2, 1.4, -1.2, 0.12);
+  const metades = [bR(cena, 0xa07a50, 0.3, 1.0, 0.6, 0, 0, 0, 0.1), bR(cena, 0xa07a50, 0.3, 1.0, 0.6, 0, 0, 0, 0.1)];
+  for (let i = 0; i < 6; i++) bR(cena, 0x8a6a42, 0.5, 0.5, 2.4, LX - 3 + (i % 3) * 0.55, 0.25 + Math.floor(i / 3) * 0.5, -2.5, 0.12);
+  const circulo = new THREE.Mesh(new THREE.RingGeometry(2.6, 2.85, 48), MB(0xf4b24f)); circulo.rotation.x = -Math.PI / 2; cena.add(circulo);
+  const mato = []; for (let i = 0; i < 7; i++) mato.push(bR(cena, 0x5c8a46, 0.35, 1.4 + rng() * 0.8, 0.35, LX - 8 + i * 0.5, 0.8, -0.8 + (i % 2) * 0.4, 0.1));
+  const caixaF = bR(cena, 0x8a6a42, 2.2, 0.7, 1.0, LX + 4.5, 0.35, 1.2, 0.12);
+  const kit = bR(cena, 0xd0443a, 0.9, 0.6, 0.6, LX + 4.7, 0.95, 1.2, 0.1); { const cz = bR(cena, 0xffffff, 0.36, 0.1, 0.04, LX + 4.7, 0.95, 1.52, 0.02); const cz2 = bR(cena, 0xffffff, 0.1, 0.36, 0.04, LX + 4.7, 0.95, 1.52, 0.02); }
+
+  // ---------- as cinco fogueiras (x = 30 .. 62) ----------
+  const FX0 = 30, FDX = 8;
+  const chamasTodas = [];
+  function chamas(pai, x, z, s, n) { for (let i = 0; i < (n || 3); i++) { const m = bR(pai, i % 2 ? 0xf4b24f : 0xe8743b, 0.5 * s, 0.9 * s, 0.5 * s, x + (i - 1) * 0.3 * s, 0.6 * s, z + ((i % 2) - 0.5) * 0.2, 0.12); m.material = MB(m.material.color.getHex()); m.castShadow = false; chamasTodas.push({ m, s, f: i }); } }
+  const fog = [];
+  for (let k = 0; k < 5; k++) { const g = new THREE.Group(); g.position.set(FX0 + k * FDX, 0, -2); cena.add(g); fog.push(g); }
+  // 1 conselho: cabana de toras alta
+  for (let l = 0; l < 6; l++) for (const s of [-1, 1]) { const m = bR(fog[0], 0x6b4a32, l % 2 ? 0.35 : 2.6 - l * 0.2, 0.35, l % 2 ? 2.6 - l * 0.2 : 0.35, l % 2 ? s * (1.1 - l * 0.08) : 0, 0.2 + l * 0.35, l % 2 ? 0 : s * (1.1 - l * 0.08), 0.08); }
+  chamas(fog[0], 0, 0, 2.2, 3);
+  // 2 caçador: duas toras paralelas e panela
+  for (const s of [-1, 1]) bR(fog[1], 0x6b4a32, 0.6, 0.6, 3.2, s * 0.65, 0.3, 0, 0.15);
+  chamas(fog[1], 0, 0, 0.9, 3); bR(fog[1], 0x3a3a3e, 1.0, 0.7, 1.0, 0, 0.95, 0.2, 0.2);
+  // 3 cercadura de pedra com grelha
+  for (let i = 0; i < 9; i++) { const a = i / 9 * Math.PI * 2; bR(fog[2], 0x8e8a80, 0.6, 0.5, 0.6, Math.cos(a) * 1.3, 0.25, Math.sin(a) * 1.3, 0.18); }
+  chamas(fog[2], 0, 0, 1.0, 3); for (let i = 0; i < 5; i++) metal(bR(fog[2], 0, 0.06, 0.06, 2.6, -0.8 + i * 0.4, 0.62, 0, 0.02));
+  // 4 estrela: cinco toras apontando para o centro
+  const estrela = []; for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2; const g = new THREE.Group(); g.rotation.y = a; fog[3].add(g); estrela.push(bR(g, 0x6b4a32, 2.4, 0.4, 0.4, 1.5, 0.2, 0, 0.1)); }
+  chamas(fog[3], 0, 0, 0.8, 3);
+  // 5 refletor: parede de toras atrás, assadeira na frente
+  for (let i = 0; i < 4; i++) bR(fog[4], 0x6b4a32, 3.0, 0.4, 0.4, 0, 0.2 + i * 0.42, -1.2, 0.1);
+  for (const s of [-1, 1]) bR(fog[4], 0x5a3e2a, 0.3, 2.0, 0.3, s * 1.4, 1.0, -1.45, 0.06);
+  chamas(fog[4], 0, -0.6, 0.9, 3); metal(bR(fog[4], 0, 1.2, 0.12, 0.9, 0, 0.35, 1.2, 0.04)); bR(fog[4], 0xd9a85a, 0.9, 0.2, 0.6, 0, 0.48, 1.2, 0.08);
+
+  // ---------- fogueira de cozinha (x = 95): isca, gravetos, lenha, brasa, balde, área limpa ----------
+  const CX = 95;
+  const coz = new THREE.Group(); coz.position.set(CX, 0, 0); cena.add(coz);
+  const terra = new THREE.Mesh(new THREE.CircleGeometry(3.2, 40), M(0x8a6a4a)); terra.rotation.x = -Math.PI / 2; terra.position.y = 0.02; terra.receiveShadow = true; coz.add(terra);
+  const pedrasC = []; for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; pedrasC.push(bR(coz, 0x8e8a80, 0.5, 0.42, 0.5, Math.cos(a) * 1.15, 0.21, Math.sin(a) * 1.15, 0.16)); }
+  const isca = []; for (let i = 0; i < 8; i++) isca.push(bR(coz, i % 2 ? 0xc8a060 : 0x9a7a4a, 0.25, 0.08, 0.18, (rng() - 0.5) * 0.6, 0.06, (rng() - 0.5) * 0.6, 0.03));
+  const gravetos = []; for (let i = 0; i < 8; i++) { const g = new THREE.Group(); g.rotation.y = i / 8 * Math.PI * 2; coz.add(g); const m = bR(g, 0x8a6a42, 0.08, 1.3, 0.08, 0.32, 0.6, 0, 0.03); m.rotation.z = 0.45; gravetos.push(g); }
+  const lenhaC = []; for (let i = 0; i < 4; i++) { const g = new THREE.Group(); g.rotation.y = i / 4 * Math.PI * 2 + 0.4; coz.add(g); const m = bR(g, 0x6b4a32, 0.32, 1.9, 0.32, 0.5, 0.85, 0, 0.1); m.rotation.z = 0.5; lenhaC.push(g); }
+  const chamaC = []; for (let i = 0; i < 5; i++) { const m = bR(coz, i % 2 ? 0xf4b24f : 0xe8743b, 0.45, 0.9, 0.45, (i - 2) * 0.22, 0.6, ((i % 2) - 0.5) * 0.25, 0.12); m.material = MB(m.material.color.getHex()); m.castShadow = false; chamaC.push(m); }
+  const brasas = []; for (let i = 0; i < 12; i++) { const m = bR(coz, 0xc8402a, 0.3, 0.16, 0.3, (rng() - 0.5) * 1.3, 0.1, (rng() - 0.5) * 1.3, 0.06); m.material = MB(0xc8402a); m.castShadow = false; brasas.push(m); }
+  const pacotes = []; for (let i = 0; i < 3; i++) pacotes.push(metal(bR(coz, 0, 0.6, 0.22, 0.45, -0.4 + i * 0.4, 0.2, 0.35 - i * 0.2, 0.1)));
+  const balde = new THREE.Group(); balde.position.set(2.4, 0, 1.6); coz.add(balde); const bm = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.45, 0.9, 16), M(0x3c78a0)); bm.position.y = 0.45; bm.castShadow = true; balde.add(bm);
+  const agua = []; for (let i = 0; i < 16; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.16, 0.16), new THREE.MeshBasicMaterial({ color: 0x7ab8e0 })); coz.add(m); agua.push(m); }
+  const vapor = []; for (let i = 0; i < 8; i++) { const m = bR(coz, 0xe8e8e8, 0.6, 0.6, 0.6, 0, 0, 0, 0.25); m.material = M(0xe8e8e8, { transparent: true, opacity: 0.7 }); m.castShadow = false; vapor.push(m); }
+  // limpeza: bacia, pratos, caixa de comida, saco de lixo
+  const LIX = CX - 7;
+  const bacia = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 0.8, 0.5, 20), M(0x5a8a9a)); bacia.position.set(LIX, 0.25, 0.5); bacia.castShadow = true; cena.add(bacia);
+  const prato = metal(bR(cena, 0, 0.9, 0.08, 0.9, LIX, 0.55, 0.5, 0.06));
+  const caixaComida = bR(cena, 0x3f6b4a, 1.4, 0.9, 1.0, LIX - 2.4, 0.45, -0.6, 0.15); const tampa = bR(cena, 0x2f5a3a, 1.5, 0.18, 1.1, LIX - 2.4, 0.98, -0.6, 0.08);
+  const lixo = bR(cena, 0x2a2a2e, 0.9, 1.2, 0.9, LIX + 2.2, 0.6, -0.8, 0.35);
+
+  // ---------- Desbravador ----------
+  const desb = P.desbravador(); cena.add(desb);
+  const maoD = desb.userData.bracos[1].cot, maoE = desb.userData.bracos[0].cot;
+  const matsD = []; desb.traverse((o) => { if (o.material && !matsD.includes(o.material)) matsD.push(o.material); });
+  const segura = (obj, mao, ox, oy, oz, rx, ry, rz) => { if (obj.parent !== mao) mao.add(obj); obj.position.set(ox, oy, oz); obj.rotation.set(rx, ry, rz); obj.visible = true; };
+
+  // ---------- planos ----------
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const PL = [];
+  const plano = (t, de, para, oDe, oPara, foco, dof, onde) => PL.push({ t, de, para, olhaDe: oDe, olhaPara: oPara || oDe, foco: foco || V(0, 0, 0), dof: dof || 0, d: onde || 'base' });
+  const D0 = V(1.8, 0, 3.0);
+  const close = (t, dof) => plano(t, V(D0.x - 0.3, 3.9, D0.z + 13.4), V(D0.x - 0.25, 3.9, D0.z + 13.2), V(D0.x, 5.4, D0.z), null, V(0, 0, 0), dof == null ? 8 : dof, 'vlog');
+  const medio = (t, dof) => plano(t, V(D0.x - 0.5, 3.6, D0.z + 19), V(D0.x - 0.4, 3.6, D0.z + 18.3), V(D0.x - 0.2, 6.0, D0.z), null, V(0, 0, 0), dof == null ? 4 : dof, 'vlog');
+  plano(0, V(-1, 7, 30), V(0, 6, 27), V(0, 2.5, 0), V(0.5, 3.0, 0), V(0, 0, 0), 0, 'chegando');
+  close(L(1) + 0.8);
+  medio(W(2, 'ferramentas') - 0.2, 4);
+  close(L(3) - 0.1);
+  // machadinha
+  plano(L(4) - 0.6, V(LX + 1, 6.5, 17), V(LX + 1, 6.0, 15), V(LX + 0.4, 1.6, -0.5), V(LX + 0.4, 1.6, -0.5), V(LX, 0, 0), 0, 'circulo');
+  plano(L(5), V(LX + 1.5, 4.0, 10.5), V(LX + 1.2, 3.8, 9.5), V(LX + 0.6, 1.8, -1.2), V(LX + 0.6, 1.8, -1.2), V(LX, 0, -1), 0, 'cortar');
+  plano(L(6), V(LX - 4.5, 4.4, 15), V(LX - 4.8, 4.2, 14), V(LX - 5.8, 2.0, -0.5), V(LX - 5.8, 2.0, -0.5), V(LX - 6, 0, 0), 0, 'facao');
+  plano(L(7), V(D0.x + 0.8, 3.4, D0.z + 8.5), V(D0.x + 0.6, 3.4, D0.z + 7.8), V(D0.x + 0.6, 2.6, D0.z), null, V(0, 0, 0), 6, 'faca');
+  plano(W(7, 'hora'), V(D0.x + 0.8, 3.4, D0.z + 8.5), V(D0.x + 0.6, 3.4, D0.z + 7.8), V(D0.x + 0.6, 2.6, D0.z), null, V(0, 0, 0), 6, 'canivete');
+  plano(L(8), V(D0.x - 0.5, 3.6, D0.z + 11), V(D0.x - 0.4, 3.6, D0.z + 10.3), V(D0.x - 0.2, 3.4, D0.z), null, V(0, 0, 0), 6, 'passa');
+  plano(W(8, 'quando'), V(LX + 3, 4.4, 11), V(LX + 3.4, 4.2, 10), V(LX + 4.4, 1.0, 1.2), V(LX + 4.4, 1.0, 1.2), V(LX + 4, 0, 1), 0, 'guarda');
+  plano(W(9, 'kit') - 0.3, V(LX + 4.7, 2.6, 6), V(LX + 4.7, 2.4, 5), V(LX + 4.7, 1.0, 1.2), V(LX + 4.7, 1.0, 1.2), V(LX + 4, 0, 1), 0, 'fora');
+  close(L(10) - 0.6);
+  // fogueiras: a câmera passeia de uma em uma
+  const fogPlano = (t, k) => plano(t, V(FX0 + k * FDX + 1, 4.6, 11), V(FX0 + k * FDX + 0.4, 4.2, 9.5), V(FX0 + k * FDX, 1.2, -2), V(FX0 + k * FDX, 1.2, -2), V(FX0 + k * FDX, 0, -2), 0, 'fora');
+  fogPlano(W(11, 'fogo') - 0.2, 0); fogPlano(W(11, 'fogo', 2) - 0.2, 1); fogPlano(L(12) - 0.1, 2); fogPlano(W(12, 'fogo') - 0.2, 3); fogPlano(W(12, 'fogo', 2) - 0.2, 4);
+  // acender
+  plano(L(13) - 0.6, V(CX + 0.5, 4.2, 7.5), V(CX + 0.3, 3.8, 6.5), V(CX, 0.6, 0), V(CX, 0.6, 0), V(CX, 0, 0), 0, 'acende');
+  plano(L(14), V(CX + 4, 6.5, 13), V(CX + 3, 6.0, 11.5), V(CX + 0.5, 1.0, 0), V(CX + 0.5, 1.0, 0), V(CX, 0, 0), 0, 'regras');
+  plano(L(15) - 0.6, V(CX + 2.2, 3.8, 9.5), V(CX + 1.8, 3.6, 8.5), V(CX - 0.6, 1.6, 0.3), V(CX - 0.6, 1.6, 0.3), V(CX, 0, 0), 0, 'cozinha');
+  plano(L(16) - 0.6, V(LIX + 1.6, 4.8, 12), V(LIX + 1.2, 4.6, 11), V(LIX, 1.0, 0), V(LIX, 1.0, 0), V(LIX, 0, 0), 0, 'limpa');
+  plano(L(17) - 0.3, V(CX + 1.2, 4.6, 10.5), V(CX + 1.0, 4.4, 9.5), V(CX, 1.2, 0.4), V(CX, 1.2, 0.4), V(CX, 0, 0), 0, 'apaga');
+  close(L(18) - 0.6, 6);
+  plano(LE(18) + 0.3, V(0, 3.4, 28), V(0, 3.8, 25), V(0, 6.6, 0), null, V(0, 0, 0), 0, 'tchau');
+  window.__PL = PL;
+  const planoEm = (t) => { let i = 0; while (i + 1 < PL.length && PL[i + 1].t <= t) i++; return i; };
+
+  const boca = (t) => { const a = T.boca.D; return a[clamp(Math.floor(t * T.fps), 0, a.length - 1)] || 0; };
+  const bocaSuave = (t) => { let s = 0; for (let k = -6; k <= 0; k++) s += boca(t + k / T.fps); return s / 7; };
+  const piscar = (t) => { const c = (t + 1.3) % 3.7; return Math.max(0, 1 - Math.abs(c - 3.5) / 0.07); };
+  const falaEm = (t) => T.falas.find((f) => t >= f.t0 - 0.05 && t <= f.t1 + 0.05);
+
+  const CONT = [
+    [W(2, 'facão') - 0.1, LE(2) + 0.3, 'as ferramentas cortantes', [[W(2, 'facão'), 'facão'], [W(2, 'machadinha'), 'machadinha'], [W(2, 'faca'), 'faca'], [W(2, 'canivete'), 'canivete']]],
+    [W(11, 'fogo') - 0.2, LE(12) + 0.3, 'tipos de fogueira', [[W(11, 'fogo') - 0.2, '1 · conselho'], [W(11, 'fogo', 2) - 0.2, '2 · caçador'], [L(12) - 0.1, '3 · cercadura de pedra'], [W(12, 'fogo') - 0.2, '4 · estrela'], [W(12, 'fogo', 2) - 0.2, '5 · refletor']]],
+    [W(13, 'primeiro') - 0.1, W(13, 'sempre') - 0.1, 'do mais fino pro mais grosso', [[W(13, 'primeiro'), '1 · isca'], [W(13, 'gravetos'), '2 · gravetos'], [W(13, 'lenha'), '3 · lenha']]],
+  ];
+  const CHIPS = [
+    { t0: W(11, 'grande'), t1: W(11, 'fogo', 2) - 0.2, itens: [['iluminar e reunir', W(11, 'grande')]] },
+    { t0: W(11, 'duas'), t1: LE(11) + 0.2, itens: [['segura a panela', W(11, 'duas')]] },
+    { t0: W(12, 'protege'), t1: W(12, 'fogo') - 0.2, itens: [['protege e apoia a grelha', W(12, 'protege')]] },
+    { t0: W(12, 'economiza'), t1: W(12, 'fogo', 2) - 0.2, itens: [['economiza lenha', W(12, 'economiza')]] },
+    { t0: W(12, 'joga'), t1: LE(12) + 0.3, itens: [['bom pra assar', W(12, 'ótimo')]] },
+    { t0: W(14, 'limpe'), t1: LE(14) + 0.4, itens: [['área limpa', W(14, 'limpe')], ['balde de água ou areia', W(14, 'balde')], ['longe de barracas e árvores', W(14, 'fique')], ['nunca sozinho', W(14, 'nunca')]] },
+    { t0: W(15, 'brasa'), t1: LE(15) + 0.3, itens: [['brasa, não chama', W(15, 'brasa')], ['pão de espeto', W(15, 'pão')], ['legumes no alumínio', W(15, 'legumes')]] },
+    { t0: W(16, 'lave'), t1: LE(16) + 0.3, itens: [['utensílios limpos', W(16, 'lave')], ['comida fechada', W(16, 'guarde')], ['lixo recolhido', W(16, 'recolha')]] },
+    { t0: W(17, 'água'), t1: LE(17) + 0.3, itens: [['água', W(17, 'água')], ['mexe', W(17, 'mexe')], ['água de novo', W(17, 'água', 2)], ['cinzas frias', W(17, 'cinzas')]] },
+    { t0: W(8, 'canivete'), t1: W(8, 'quando') - 0.1, itens: [['canivete fechado', W(8, 'canivete')], ['faca pelo cabo', W(8, 'faca')]] },
+  ];
+  const legenda = $('legenda'), chipsEl = $('chips');
+  let ultHtml = null, ultChips = -1;
+  const tmp = new THREE.Vector3();
+
+  window.__timelines = window.__timelines || {};
+  window.__timelines["main"] = S.play(function render(t) {
+    const ip = planoEm(t), pl = PL[ip], fimPl = ip + 1 < PL.length ? PL[ip + 1].t : S.D;
+    const lin = clamp((t - pl.t) / Math.max(0.5, fimPl - pl.t), 0, 1); const p = 0.6 * lin + 0.4 * ease('sine.inOut')(lin);
+    $('ceu').style.background = 'linear-gradient(180deg, #4f86b8 0%, #86afcf 42%, #d9e4dc 56%)';
+    cam.position.lerpVectors(pl.de, pl.para, p); cam.lookAt(tmp.lerpVectors(pl.olhaDe, pl.olhaPara, p));
+    sol.position.set(pl.foco.x - 5, 22, pl.foco.z + 12); sol.target.position.copy(pl.foco); preench.position.set(pl.foco.x + 8, 6, pl.foco.z + 8);
+    $('fundo').style.filter = pl.dof ? `blur(${pl.dof}px)` : 'none';
+
+    // ---------- objetos animados ----------
+    // machadinha: círculo de segurança e corte
+    circulo.position.set(LX + 0.4, 0.04, 0.2); circulo.visible = t > W(4, 'círculo') - 0.2 && t < LE(4) + 0.4; circulo.scale.setScalar(Math.max(0.01, seg(t, W(4, 'gire') - 0.1, 0.8)));
+    const golpes = [W(5, 'corte'), W(5, 'nunca'), W(5, 'afastados')];
+    const nGolpe = golpes.filter((g) => t > g + 0.25).length;
+    tora.visible = nGolpe < 2;
+    metades.forEach((m, i) => { m.visible = nGolpe >= 2; const k = seg(t, golpes[1] + 0.25, 0.5); m.position.set(LX + 1.2 + (i ? 1 : -1) * (0.2 + 0.7 * k), 1.4 - 0.4 * k, -1.2); m.rotation.z = (i ? -1 : 1) * 1.2 * k; });
+    mato.forEach((m, i) => { const k = seg(t, W(6, 'golpe') + 0.2 + i * 0.05, 0.5); m.rotation.z = -1.3 * k; m.position.y = 0.8 - 0.5 * k; });
+    // fogueiras
+    chamasTodas.forEach(({ m, s, f }, i) => { const fl = 1 + 0.07 * Math.sin(t * 5 + i * 1.7); m.scale.set(1, fl, 1); });
+    estrela.forEach((m, i) => { m.position.x = 1.5 - 0.6 * seg(t, W(12, 'empurrando'), 1.2); });
+    // fogueira de cozinha: monta, acende, vira brasa, apaga
+    isca.forEach((m, i) => { m.visible = t > W(13, 'primeiro') - 0.2; m.scale.setScalar(Math.max(0.01, pop(t, W(13, 'isca') + i * 0.05, 0.25))); });
+    gravetos.forEach((g, i) => { g.visible = t > W(13, 'gravetos') - 0.1; g.scale.setScalar(Math.max(0.01, pop(t, W(13, 'gravetos') + i * 0.06, 0.25))); });
+    lenhaC.forEach((g, i) => { g.visible = t > W(13, 'lenha') - 0.1; g.scale.setScalar(Math.max(0.01, pop(t, W(13, 'lenha') + i * 0.08, 0.3))); });
+    const acesa = seg(t, W(13, 'fósforo') + 0.3, 0.2, 'power4.out') * (1 + 0.9 * Math.max(0, 1 - (t - W(13, 'fósforo') - 0.3) / 0.8) * (t > W(13, 'fósforo') + 0.3 ? 1 : 0)), brasaK = seg(t, L(15) - 0.6, 1.5), apaga = seg(t, W(17, 'água') + 0.3, 3.0);
+    const fogoAlto = acesa * (1 - 0.65 * brasaK) * (1 - apaga);
+    chamaC.forEach((m, i) => { const fl = 1 + 0.08 * Math.sin(t * 5 + i * 1.3); m.visible = fogoAlto > 0.02; m.scale.set(1, Math.max(0.01, fogoAlto * 1.6 * fl), 1); m.position.y = 0.3 + 0.5 * fogoAlto; });
+    brasas.forEach((m, i) => { m.visible = t > L(15) - 1; m.material.color.setHex(apaga > 0.6 ? 0x3a3430 : (i % 2 ? 0xd8482a : 0xb03a22)); });
+    lenhaC.forEach((g) => { if (brasaK > 0.5) g.scale.setScalar(Math.max(0.3, 1 - 0.6 * brasaK)); });
+    gravetos.forEach((g) => { if (brasaK > 0.3) g.visible = false; });
+    pacotes.forEach((m, i) => { m.visible = t > W(15, 'legumes') - 0.1; m.scale.setScalar(Math.max(0.01, pop(t, W(15, 'alumínio') + i * 0.15, 0.3))); });
+    fogoLuz.position.set(CX, 1.6, 0); fogoLuz.intensity = Math.abs(pl.foco.x - CX) < 20 ? 2.2 * fogoAlto : 0;
+    const tempoMexe = [W(17, 'água'), W(17, 'água', 2)];
+    agua.forEach((m, i) => { let k = -1; for (const tt of tempoMexe) { const q = (t - tt) / 0.7; if (q >= 0 && q <= 1) k = q; } m.visible = k >= 0; if (k >= 0) { m.position.set(1.6 - 1.8 * k + (i % 4) * 0.1, 1.8 + 1.0 * Math.sin(k * Math.PI) - 1.6 * k * k, (i % 3 - 1) * 0.25 + (i % 5) * 0.05); } });
+    vapor.forEach((m, i) => { const vis = t > W(17, 'água') && t < LE(17) + 1; m.visible = vis; const k = ((t * 0.4 + i / 8) % 1); m.position.set((i % 3 - 1) * 0.4, 0.4 + k * 3, (i % 2 - 0.5) * 0.4); m.material.opacity = 0.6 * (1 - k); m.scale.setScalar(0.5 + k); });
+    // limpeza
+    prato.position.y = 0.55 + 0.06 * Math.sin(t * 3) * (t > W(16, 'lave') && t < W(16, 'porque') + 1 ? 1 : 0);
+    tampa.position.y = 0.98 + 0.9 * (1 - seg(t, W(16, 'guarde'), 0.4));
+    lixo.scale.setScalar(t > W(16, 'recolha') ? 1 + 0.15 * Math.sin(clamp((t - W(16, 'recolha')) / 0.4, 0, 1) * Math.PI) : 1);
+
+    // ---------- Desbravador ----------
+    const gD = bocaSuave(t), bD = boca(t);
+    let pos = D0.clone(), rotY = 0, andar = null, bDir = null, bEsq = null, baixar = 0, olhar = 0, inclin = 0, sobr = 0;
+    Object.values(FERR).forEach((f) => (f.visible = false)); graveto.visible = false; espeto.visible = false; fosforo.visible = false;
+    if (pl.d === 'chegando') { const k = ease('power2.out')(clamp((t - 0.1) / 1.6, 0, 1)); pos.set(S.mix(12, D0.x, k), 0, D0.z + 2 * (1 - k)); rotY = -1.2 * (1 - k); andar = k < 1 ? t * 3.2 : null; }
+    if (pl.d === 'vlog') {
+      const lado = Math.floor(t / 2.3) % 2;
+      if (gD > 0.3) { const g = { x: -0.25 * gD, z: 0.08 * gD, cx: -0.5 * gD, cz: 0 }; if (lado) bDir = g; else bEsq = g; }
+      if (t > W(3, 'regra') - 0.2 && t < LE(3)) { bDir = { x: -1.0, z: 0.1, cx: -1.4, cz: 0 }; sobr = 0.3; }
+      if (t > W(3, 'combinado') - 0.1 && t < LE(3) + 0.4) { bDir = { x: -1.3, z: 0.3, cx: -0.4, cz: 0 }; }
+      if (t > W(1, 'cozinha') && t < LE(1)) { bDir = { x: -0.15, z: 1.35, cx: 0, cz: 1.9 }; bEsq = { x: -0.15, z: 1.35, cx: 0, cz: 1.9 }; }
+    }
+    if (pl.d === 'circulo') {
+      pos.set(LX + 0.4, 0, 0.2); const gira = clamp((t - W(4, 'gire')) / 2.2, 0, 1); rotY = gira * Math.PI * 2;
+      bDir = { x: -1.55, z: 0.15, cx: 0, cz: 0 }; segura(FERR.machadinha, maoD, 0, -0.75, 0.1, Math.PI / 2, 0, 0); FERR.machadinha.userData.bainha.visible = true;
+      if (t < W(4, 'estique')) bDir = { x: -0.4, z: 0.1, cx: -0.6, cz: 0 };
+    }
+    if (pl.d === 'cortar') {
+      pos.set(LX - 0.6, 0, -1.2); rotY = Math.PI / 2;
+      let k = 0; for (const g of golpes) { const q = (t - g) / 0.5; if (q >= 0 && q <= 1) k = Math.sin(q * Math.PI); }
+      bDir = { x: -2.7 + 1.9 * (1 - k) * 0 + 1.9 * k * 0 - (-1.2) * k, z: 0.2, cx: -0.3, cz: 0 }; bEsq = { x: bDir.x, z: -0.1, cx: -0.3, cz: 0 };
+      bDir.x = -2.6 + 1.5 * (k > 0 ? (1 - Math.abs(1 - 2 * k)) : 0) * 0 + (k > 0 ? 1.6 * k : 0); bEsq.x = bDir.x;
+      segura(FERR.machadinha, maoD, 0, -0.75, 0.1, 0, 0, 0); FERR.machadinha.userData.bainha.visible = false;
+      baixar = 0.25;
+    }
+    if (pl.d === 'facao') {
+      pos.set(LX - 4.4, 0, 0.6); rotY = -1.6; const q = ((t - W(6, 'golpe')) % 2.0) / 2.0; const k = t > W(6, 'golpe') - 0.2 && q < 0.35 ? Math.sin(q / 0.35 * Math.PI) : 0;
+      bDir = { x: -1.3, z: 0.6 + 1.0 * k, cx: -0.2, cz: 0 }; bEsq = { x: 0, z: 0.2, cx: 0, cz: 0 };
+      segura(FERR.facao, maoD, 0, -0.75, 0.1, Math.PI / 2, 0, 0);
+    }
+    if (pl.d === 'faca' || pl.d === 'canivete') {
+      rotY = -0.2; baixar = 0.3;
+      const q = ((t - L(7)) % 2.2) / 2.2; const corta = pl.d === 'faca' ? Math.max(0, Math.sin(q * Math.PI * 2)) * (q < 0.5 ? 1 : 0) : 0;
+      bEsq = { x: -1.1, z: -0.1, cx: -0.6, cz: 0 }; segura(graveto, maoE, 0, -0.75, 0.15, 0.2, 0, 1.2);
+      if (pl.d === 'faca') { bDir = { x: -1.1, z: 0.1 + 0.5 * corta, cx: -0.7, cz: 0 }; segura(FERR.faca, maoD, 0, -0.78, 0.1, Math.PI / 2, 0, 0); }
+      else { bDir = { x: -1.2, z: 0.2, cx: -0.8, cz: 0 }; segura(FERR.canivete, maoD, 0, -0.78, 0.1, Math.PI / 2, 0, 0); FERR.canivete.userData.piv.rotation.x = -Math.PI * 0.95 * seg(t, W(7, 'fechar'), 0.6); graveto.visible = false; bEsq = null; }
+    }
+    if (pl.d === 'passa') {
+      const ent = seg(t, W(8, 'faca') - 0.1, 0.4);
+      bDir = { x: -1.4, z: 0.1, cx: -0.2, cz: 0 };
+      if (t < W(8, 'faca') - 0.1) { segura(FERR.canivete, maoD, 0, -0.78, 0.1, Math.PI / 2, 0, 0); FERR.canivete.userData.piv.rotation.x = -Math.PI * 0.95; }
+      else segura(FERR.faca, maoD, 0, -0.85, 0.1, -Math.PI / 2, 0, 0);
+    }
+    if (pl.d === 'guarda') { pos.set(LX + 2.4, 0, 1.3); rotY = Math.PI / 2; bDir = { x: -1.2, z: 0.1, cx: -0.5, cz: 0 }; segura(FERR.faca, maoD, 0, -0.78, 0.1, Math.PI / 2, 0, 0); if (t > W(8, 'guardada')) FERR.faca.visible = false; baixar = 0.2; }
+    if (pl.d === 'fora') pos.set(500, 0, 500);
+    if (pl.d === 'acende') { pos.set(CX - 1.9, 0, 1.3); rotY = 0.9; baixar = 0.3; bDir = { x: -1.2, z: 0.1, cx: -0.6, cz: 0 }; if (t > W(13, 'fósforo') - 0.6) { segura(fosforo, maoD, 0, -0.78, 0.1, 0, 0, 0); chamaF.visible = t > W(13, 'fósforo') - 0.2; } }
+    if (pl.d === 'regras') { pos.set(CX - 3.0, 0, 2.4); rotY = 0.6; if (gD > 0.25) bDir = { x: -0.6 * gD, z: 0.15, cx: -1.0 * gD, cz: 0 }; }
+    if (pl.d === 'cozinha') {
+      pos.set(CX - 2.0, 0, 1.2); rotY = 1.0; const gira = t * 2;
+      bDir = { x: -1.2, z: 0.1, cx: -0.3, cz: 0 }; segura(espeto, maoD, 0, -0.78, 0.15, Math.PI / 2 + 0.3, gira, 0); espeto.visible = t < W(15, 'legumes');
+    }
+    if (pl.d === 'limpa') { pos.set(LIX - 1.3, 0, 1.6); rotY = 0.8; baixar = 0.25; const v = Math.sin(t * 3); bDir = { x: -1.1 + 0.15 * v, z: 0.1, cx: -0.6, cz: 0 }; bEsq = { x: -1.1 - 0.2 * v, z: -0.1, cx: -0.6, cz: 0 }; }
+    if (pl.d === 'apaga') { pos.set(CX - 2.4, 0, 1.0); rotY = 1.1; baixar = 0.2; const m = Math.sin(t * 3); bDir = { x: -1.3, z: 0.1, cx: -0.6 + 0.15 * m, cz: 0 }; }
+    if (pl.d === 'tchau') { bDir = { x: 0, z: 2.6 + 0.25 * Math.sin(t * 9), cx: 0, cz: 0.3 }; }
+    desb.position.copy(pos); desb.rotation.y = rotY;
+    if (andar != null) desb.position.y += 0.12 * Math.abs(Math.sin(t * 3.2 * Math.PI));
+    const pulo = Math.sin(clamp((t - W(10, 'agora')) / 0.5, 0, 1) * Math.PI) * 0.5;
+    if (pl.d === 'vlog') desb.position.y += pulo;
+    P.pose(desb, { andar, respirar: S.wave(t, 40), falar: bD, fase: t, piscar: piscar(t), olhar, baixar, inclinar: inclin, sobr, bD: bDir, bE: bEsq });
+
+    // ---------- desenha ----------
+    if (pl.dof > 0) {
+      for (const m of matsD) { m.colorWrite = false; m.depthWrite = false; }
+      rFundo.render(cena, cam);
+      for (const m of matsD) { m.colorWrite = true; m.depthWrite = true; }
+      const outros = cena.children.filter((o) => o !== desb && !o.isLight); outros.forEach((o) => { o.userData.v = o.visible; o.visible = false; });
+      rFrente.render(cena, cam); outros.forEach((o) => { o.visible = o.userData.v; });
+      $('frente').style.display = 'block';
+    } else { rFundo.render(cena, cam); $('frente').style.display = 'none'; }
+
+    // ---------- textos ----------
+    const f = falaEm(t);
+    let html = ''; if (f) { const c = f.chunks.find((c) => t >= c.t0 && t < c.t1); if (c) html = c.html; }
+    if (html !== ultHtml) { legenda.innerHTML = html; ultHtml = html; }
+    mostra($('serie'), t < W(2, 'mas') - 0.1 ? pop(t, 0.2, 0.4) : 0, 'translateX(-50%)');
+    const espOn = t > W(1, 'cozinha') + 0.3 && t < LE(1) + 0.3; mostra($('esp'), espOn ? pop(t, W(1, 'cozinha') + 0.3, 0.4) : 0);
+    const avisoOn = (t > W(3, 'nenhuma') - 0.1 && t < LE(3) + 0.4) || (t > W(4, 'antes') && t < LE(9) + 0.2 && !['faca', 'canivete', 'passa'].includes(pl.d) && false);
+    mostra($('aviso'), avisoOn ? pop(t, W(3, 'nenhuma') - 0.1, 0.35) : 0);
+    const ct = CONT.find((x) => t >= x[0] && t < x[1]);
+    if (ct) { let txt = '', t0 = ct[0]; for (const [tt, s] of ct[3]) if (t >= tt) { txt = s; t0 = tt; } $('numero').textContent = txt || '…'; $('rotulo').textContent = ct[2]; mostra($('contador'), pop(t, t0, 0.25)); }
+    else mostra($('contador'), 0);
+    const ci = CHIPS.findIndex((c) => t >= c.t0 && t < c.t1);
+    if (ci !== ultChips) { chipsEl.innerHTML = ci >= 0 ? CHIPS[ci].itens.map((x) => `<span class="chip">${x[0]}</span>`).join('') : ''; ultChips = ci; }
+    if (ci >= 0) [...chipsEl.children].forEach((el, k) => { const t0 = CHIPS[ci].itens[k][1]; mostra(el, pop(t, t0, 0.28)); el.classList.toggle('on', t >= t0 && t < t0 + 0.7); });
+    chipsEl.style.top = ct ? '490px' : '300px';
+    let topo = 600; if (avisoOn) topo = 460; if (ct) topo = 640; if (ci >= 0) topo = (ct ? 490 : 300) + 72 * CHIPS[ci].itens.length + 50; if (espOn) topo = 660;
+    legenda.style.top = topo + 'px';
+    const fimOn = t >= LE(18) + 0.3; mostra($('fim'), fimOn ? pop(t, LE(18) + 0.3, 0.45) : 0); if (fimOn) legenda.innerHTML = '';
+  }, { loop: false });
+})();
+</script>
+</body>
+</html>
