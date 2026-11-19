@@ -1,8 +1,8 @@
 {
  "video": "entrega/vitrine-blackfriday-bastidores-9x16.mp4",
- "duration": 40.0,
- "change_steps": 388,
- "longest_gap_s": 0.5,
+ "duration": 34.5,
+ "change_steps": 330,
+ "longest_gap_s": 0.6,
  "dead_gaps": [],
  "hard_cuts": [
   5.53,
@@ -10,11 +10,19 @@
   13.0,
   19.6,
   23.6,
-  27.8,
-  31.0,
-  34.5
+  26.7,
+  29.1
  ],
  "too_short_shots": [],
- "flashes": [],
- "pass": true
+ "flashes": [
+  [
+   26.73,
+   26.73
+  ],
+  [
+   30.67,
+   30.67
+  ]
+ ],
+ "pass": false
 }

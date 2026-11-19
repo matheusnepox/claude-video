@@ -1,5 +1,5 @@
 // Bastidores: a Seven adesiva a vitrine de uma joalheria para a Black Friday.
-// Antes (1x) → timelapse 8x (adesivo 50% OFF, faixa Black Friday) → depois (1x) → comparação com cortina → cartão Seven.
+// Abertura (1x) → timelapse 8x + detalhes (adesivo 50% OFF, faixa Black Friday) → vitrine pronta → detalhe → cartão Seven.
 // Um relógio só: render(t) monta o quadro inteiro. Os vídeos já vêm cortados, melhorados e acelerados de media/.
 (function () {
   const S = STUDIO, M = MARCA, L = LOGO;
@@ -7,7 +7,7 @@
   const vis = (el, on) => { el.style.visibility = on ? 'visible' : 'hidden'; };
   const div = (parent, css, html) => { const e = document.createElement('div'); Object.assign(e.style, { position: 'absolute' }, css || {}); if (html != null) e.innerHTML = html; parent.appendChild(e); return e; };
   const seg = (t, a, d, e) => S.seg(t, a, d, e || 'expo.out');
-  const C = { antes: 0, lapse1: 2.4, close1: 8.5, lapse2: 13.0, close2: 19.6, depois: 23.6, close3: 27.8, compara: 31.0, cartao: 34.5, fim: 40.0 };
+  const C = { antes: 0, lapse1: 2.4, close1: 8.5, lapse2: 13.0, close2: 19.6, depois: 23.6, close3: 26.7, compara: 29.1, cartao: 29.1, fim: 34.5 };
 
   function svgLogo(qual, cor, larg) {
     const lock = qual === 'lockup';
@@ -40,7 +40,7 @@
 
   // rótulos ANTES / DEPOIS (etiqueta no canto)
   const etqAntes = div(ui, { left: '60px', top: '300px' }, pill('ANTES', 'rgba(255,255,255,0.92)', '#043D2D', 40));
-  const etqDepois = div(ui, { left: '60px', top: '300px' }, pill('DEPOIS', '#DCEBE3', '#043D2D', 40));
+  const etqDepois = div(ui, { left: '60px', top: '300px' }, pill('RESULTADO', '#DCEBE3', '#043D2D', 40));
   const t1 = T('A Black Friday chegou', Object.assign({ top: '1480px' }, centro, fonte(500, 60)));
   const t2 = T('na vitrine.', Object.assign({ top: '1560px' }, centro, fonte(700, 96, '#DCEBE3')));
   // timelapse: selo de velocidade e etiquetas do que está sendo aplicado
@@ -54,7 +54,7 @@
   const c1b = T('Transfer aplicado sem bolhas', Object.assign({ top: '1540px' }, centro, fonte(500, 48)));
   const c2 = div(ui, Object.assign({ top: '1640px' }, centro), pill('DETALHE · FAIXA', 'rgba(255,255,255,0.92)', '#043D2D', 40));
   const c2b = T('Alinhada e pressionada no vidro', Object.assign({ top: '1540px' }, centro, fonte(500, 48)));
-  const c3 = div(ui, Object.assign({ top: '1640px' }, centro), pill('RESULTADO', '#DCEBE3', '#043D2D', 40));
+  const c3 = div(ui, Object.assign({ top: '1640px' }, centro), pill('DETALHE · RESULTADO', '#DCEBE3', '#043D2D', 40));
   const c3b = T('Até 50% OFF, em destaque', Object.assign({ top: '1540px' }, centro, fonte(500, 48)));
   // depois
   const d1 = T('Vitrine pronta', Object.assign({ top: '1480px' }, centro, fonte(500, 60)));
@@ -62,8 +62,8 @@
 
   // ---------- comparação: cortina na diagonal da marca ----------
   const cmp = div(ui, { inset: 0 });
-  const imgA = div(cmp, { inset: 0, background: 'url(media/antes.jpg) center/cover' });
-  const imgD = div(cmp, { inset: 0, background: 'url(media/depois.jpg) center/cover' });
+  const imgA = div(cmp, { inset: 0, background: 'url(media/pronta.jpg) center/cover' });
+  const imgD = div(cmp, { inset: 0, background: 'url(media/pronta.jpg) center/cover' });
   const fio = div(cmp, { left: 0, top: 0, width: '10px', height: '2400px', background: '#DCEBE3', transformOrigin: '50% 0', boxShadow: '0 0 30px rgba(220,235,227,0.8)' });
   const cA = div(cmp, { right: '60px', top: '300px' }, pill('ANTES', 'rgba(255,255,255,0.92)', '#043D2D', 40));
   const cD = div(cmp, { left: '60px', top: '300px' }, pill('DEPOIS', '#DCEBE3', '#043D2D', 40));
@@ -73,7 +73,7 @@
   const cartao = div(ui, { inset: 0, background: '#07583F' });
   const f1 = div(cartao, { left: '-200px', top: '-300px', width: '700px', height: '1500px', background: '#DCEBE3', opacity: 0.06, transform: 'skewX(-29.5deg)' });
   const f2 = div(cartao, { left: '760px', top: '1100px', width: '600px', height: '1300px', background: '#DCEBE3', opacity: 0.06, transform: 'skewX(-29.5deg)' });
-  const miniDepois = div(cartao, { left: '140px', top: '250px', width: '800px', height: '600px', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(2,38,28,0.5)', background: 'url(media/depois.jpg) center 28%/cover' });
+  const miniDepois = div(cartao, { left: '140px', top: '250px', width: '800px', height: '600px', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(2,38,28,0.5)', background: 'url(media/pronta.jpg) center 40%/cover' });
   const lockFim = div(cartao, { left: '190px', top: '960px', width: '700px' }, svgLogo('lockup', '#F3EFE3', 700));
   const k1 = T('Adesivação · Vitrines · Fachadas', Object.assign({ top: '1230px' }, centro, fonte(600, 48, '#DCEBE3')));
   const k2 = T('Sua loja pronta pra vender mais.', Object.assign({ top: '1310px' }, centro, fonte(700, 60)));
@@ -91,10 +91,10 @@
     vis(tomadas.tAntes.el, emAntes); vis(tomadas.tLapse1.el, emL1); vis(tomadas.tClose1.el, emC1); vis(tomadas.tLapse2.el, emL2); vis(tomadas.tClose2.el, emC2); vis(tomadas.tDepois.el, emDepois); vis(tomadas.tClose3.el, emC3);
     tomadas.tClose1.v.style.transform = `scale(${S.mix(1.0, 1.06, seg(t, C.close1, 4.5, 'none')).toFixed(4)})`;
     tomadas.tClose2.v.style.transform = `scale(${S.mix(1.06, 1.0, seg(t, C.close2, 4.0, 'none')).toFixed(4)})`;
-    tomadas.tClose3.v.style.transform = `scale(${S.mix(1.0, 1.08, seg(t, C.close3, 3.2, 'none')).toFixed(4)})`;
+    tomadas.tClose3.v.style.transform = `scale(${S.mix(1.08, 1.0, seg(t, C.close3, 2.4, 'none')).toFixed(4)})`;
     // leve aproximação contínua nas tomadas em velocidade normal; no timelapse a câmera fica parada
     tomadas.tAntes.v.style.transform = `scale(${S.mix(1.0, 1.07, seg(t, 0, C.lapse1, 'none')).toFixed(4)})`;
-    tomadas.tDepois.v.style.transform = `scale(${S.mix(1.06, 1.14, seg(t, C.depois, C.close3 - C.depois, 'none')).toFixed(4)})`;
+    tomadas.tDepois.v.style.transform = `scale(${S.mix(1.0, 1.07, seg(t, C.depois, C.close3 - C.depois, 'none')).toFixed(4)})`;
     tomadas.tLapse1.v.style.transform = `scale(${S.mix(1.0, 1.03, seg(t, C.lapse1, 6, 'none')).toFixed(4)})`;
     tomadas.tLapse2.v.style.transform = `scale(${S.mix(1.03, 1.0, seg(t, C.lapse2, 6.5, 'none')).toFixed(4)})`;
     const comVideo = !emCmp && !emCartao;
@@ -102,7 +102,7 @@
     topo.style.opacity = Math.min(1, t / 0.5).toFixed(2);
 
     // antes
-    pop(etqAntes, t, 0.2, C.lapse1 - 0.3);
+    vis(etqAntes, false);
     mostraT(t1, t, 0.5, C.lapse1 - 0.3); mostraT(t2, t, 0.7, C.lapse1 - 0.3, 0.8);
     // timelapse 1
     vis(vel, emL1 || emL2);
