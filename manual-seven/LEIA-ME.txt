@@ -1,0 +1,14 @@
+SEVEN — Kit de Identidade Visual (2026)
+
+manual/     Seven-Manual-da-Marca.pdf (29 páginas) e as páginas em PNG
+logo/       svg (vetor, para gráfica e fachada) e png transparente (2400 px)
+            horizontal (principal), vertical e símbolo, em: verde, verde-profundo, verde-claro, branco e preto
+grafismos/  diagonal, diagonal dupla, pílula, triângulo, fio de luz e moldura (svg e png)
+pattern/    pattern símbolo e pattern diagonal (módulos que repetem sem emenda) e fundo de composição,
+            em verde, verde-profundo e creme (svg e png 2400 px)
+fontes/     Instrument Sans (Regular, Medium, SemiBold, Bold e itálicos) — licença OFL, uso livre
+mockups/    6 aplicações em png 1920 x 1280: cartões, papelaria, fachada, redes sociais, embalagem, uniforme
+
+Cores: Verde Seven #07583F · Verde Profundo #043D2D · Verde Claro #DCEBE3 · Creme #F3EFE3 · Branco #FFFFFF
+Ângulo da marca: 60,5° (diagonal do 7)
+Para impressão, use os SVG e confirme as cores com prova da gráfica.

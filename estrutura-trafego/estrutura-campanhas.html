@@ -1,0 +1,94 @@
+<html><head><meta charset="utf-8"></head><body>
+<h1>Estrutura das campanhas — Seven (Meta Ads)</h1>
+<p>Organização de campanhas, conjuntos e anúncios para os criativos produzidos. Públicos, orçamento e lances ficam a seu critério; aqui é só a organização.</p>
+
+<h2>1. Regra geral</h2>
+<ul>
+<li><b>1 campanha por oferta.</b> Cada produto tem preço, público e ciclo de venda diferentes; separando, você controla a verba e lê os resultados de cada um sem misturar.</li>
+<li><b>Conjuntos = públicos.</b> Cada conjunto testa um público (o que já funciona pra você). Comece com 1 ou 2 por campanha.</li>
+<li><b>Anúncios = criativos.</b> Os mesmos anúncios em todos os conjuntos da campanha, para comparar públicos com os mesmos criativos. No máximo 5 ou 6 anúncios por conjunto.</li>
+<li><b>Estáticos:</b> 1 anúncio com as duas versões (4:5 para feed e 9:16 para stories/reels), usando a personalização de mídia por posicionamento. Não crie anúncios separados para feed e stories.</li>
+<li><b>Textos:</b> use as opções múltiplas de texto do anúncio (texto completo + texto curto, e os títulos aprovados) em vez de duplicar anúncios só para trocar texto.</li>
+</ul>
+
+<h2>2. Padrão de nomes</h2>
+<table border="1">
+<tr><th>Nível</th><th>Padrão</th><th>Exemplo</th></tr>
+<tr><td>Campanha</td><td>[Nº] OFERTA | Objetivo | Destino | Mês</td><td>01 CARTÕES | Mensagens | WhatsApp | 2026-11</td></tr>
+<tr><td>Conjunto</td><td>[Campanha]-CJ[nº] | Público | Posicionamento</td><td>01-CJ1 | Empresários GV | Advantage+</td></tr>
+<tr><td>Anúncio</td><td>[Campanha]-AD[nº] | Formato | Peça</td><td>01-AD1 | Vídeo | V1 Produto</td></tr>
+</table>
+<p>O número da campanha se repete no conjunto e no anúncio: no relatório, qualquer linha mostra de onde ela vem.</p>
+
+<h2>3. Mensagem de WhatsApp com código</h2>
+<p>Na mensagem pré-preenchida de cada campanha, coloque um código curto. Assim, no WhatsApp Business, você sabe de qual anúncio veio cada contato e pode etiquetar (novo, orçamento enviado, fechou).</p>
+<table border="1">
+<tr><th>Campanha</th><th>Mensagem pré-preenchida</th></tr>
+<tr><td>01 Cartões</td><td>Olá! Vi o anúncio dos cartões de visita e quero um orçamento. (CV)</td></tr>
+<tr><td>02 Folhetos</td><td>Olá! Vi o anúncio dos folhetos e quero um orçamento. (FL)</td></tr>
+<tr><td>03 Lona</td><td>Olá! Quero a lona 3 x 1,5 m com ilhós. (LN)</td></tr>
+<tr><td>04 Fachada ACM</td><td>Olá! Quero agendar uma visita técnica para a minha fachada. (ACM)</td></tr>
+<tr><td>05 Serviços de tráfego</td><td>Olá! Quero saber dos serviços avulsos de tráfego. (TR)</td></tr>
+</table>
+
+<h2>4. Mapa das campanhas</h2>
+
+<h3>01 CARTÕES | Mensagens | WhatsApp</h3>
+<p>Conjuntos: CJ1, CJ2 (seus públicos). Anúncios em cada conjunto:</p>
+<table border="1">
+<tr><th>Anúncio</th><th>Peça (Drive: 01 — Cartões de visita)</th></tr>
+<tr><td>01-AD1 | Vídeo | V1 Produto</td><td>Vídeos / anuncio-cartoes-v1-produto-9x16.mp4</td></tr>
+<tr><td>01-AD2 | Vídeo | V2 Papel</td><td>Vídeos / anuncio-cartoes-v2-papel-9x16.mp4</td></tr>
+<tr><td>01-AD3 | Estático | A Oferta</td><td>Estáticos / estatico-a-feed + estatico-a-stories</td></tr>
+<tr><td>01-AD4 | Estático | B Tabela</td><td>Estáticos / estatico-b-feed + estatico-b-stories</td></tr>
+<tr><td>01-AD5 | Carrossel | 6 cards</td><td>Carrossel / carrossel-1 a 6</td></tr>
+</table>
+
+<h3>02 FOLHETOS | Mensagens | WhatsApp</h3>
+<table border="1">
+<tr><th>Anúncio</th><th>Peça (Drive: 02 — Folhetos)</th></tr>
+<tr><td>02-AD1 | Vídeo | V1 Chuva de folhetos</td><td>Vídeos / anuncio-folhetos-v1-produto-9x16.mp4</td></tr>
+<tr><td>02-AD2 | Vídeo | V2 Papel</td><td>Vídeos / anuncio-folhetos-v2-papel-9x16.mp4</td></tr>
+<tr><td>02-AD3 | Estático | A Oferta</td><td>Estáticos / estatico-a-feed + estatico-a-stories</td></tr>
+<tr><td>02-AD4 | Estático | B Tabela</td><td>Estáticos / estatico-b-feed + estatico-b-stories</td></tr>
+<tr><td>02-AD5 | Carrossel | 6 cards</td><td>Carrossel / carrossel-1 a 6</td></tr>
+</table>
+
+<h3>03 LONA | Mensagens | WhatsApp</h3>
+<table border="1">
+<tr><th>Anúncio</th><th>Peça (Drive: 03 — Lonas e fachadas em ACM)</th></tr>
+<tr><td>03-AD1 | Vídeo | V1 Lona 3x1,5</td><td>Vídeos / anuncio-lona-v1-produto-9x16.mp4</td></tr>
+<tr><td>03-AD2 | Estático | A Lona</td><td>Estáticos / estatico-a-lona-feed + estatico-a-lona-stories</td></tr>
+<tr><td>03-AD3 | Carrossel | Lona + ACM</td><td>Carrossel / carrossel-1 a 6 (abre com a oferta da lona)</td></tr>
+</table>
+
+<h3>04 FACHADA ACM | Mensagens | WhatsApp</h3>
+<p>Venda mais longa (visita técnica): avalie os resultados por contatos qualificados e visitas agendadas, não só pelo custo por conversa.</p>
+<table border="1">
+<tr><th>Anúncio</th><th>Peça (Drive: 03 — Lonas e fachadas em ACM)</th></tr>
+<tr><td>04-AD1 | Vídeo | V2 Fachada que vende</td><td>Vídeos / anuncio-acm-v2-papel-9x16.mp4</td></tr>
+<tr><td>04-AD2 | Estático | B ACM</td><td>Estáticos / estatico-b-acm-feed + estatico-b-acm-stories</td></tr>
+</table>
+
+<h3>05 SERVIÇOS DE TRÁFEGO | Mensagens | WhatsApp</h3>
+<p>Público diferente dos outros (empresas que já anunciam ou querem anunciar).</p>
+<table border="1">
+<tr><th>Anúncio</th><th>Peça (Drive: 04 — Serviços avulsos de tráfego pago)</th></tr>
+<tr><td>05-AD1 | Vídeo | Serviços avulsos</td><td>anuncio-servicos-trafego-9x16.mp4</td></tr>
+</table>
+
+<h3>06 E-BOOK | Vendas (ou Tráfego) | Página de venda</h3>
+<p>Destino é a página de compra, não o WhatsApp; por isso fica numa campanha própria, com o objetivo de vendas se o Pixel estiver na página de compra.</p>
+<table border="1">
+<tr><th>Anúncio</th><th>Peça</th></tr>
+<tr><td>06-AD1 | Vídeo | E-book com locução</td><td>ebook-trafego-pago-9x16.mp4 (versão de 47,5 s)</td></tr>
+</table>
+
+<h2>5. Rotina de organização</h2>
+<ul>
+<li>Suba uma campanha por vez, a cada 2 ou 3 dias, para não reiniciar o aprendizado de tudo junto e conseguir atender os contatos.</li>
+<li>Deixe cada conjunto rodar alguns dias antes de mexer; pause o anúncio que ficar claramente atrás dos outros e mantenha os vencedores.</li>
+<li>Ao trocar criativos, crie um novo anúncio (AD6, AD7…) em vez de editar o antigo, para não perder o histórico.</li>
+<li>No fim do mês, duplique a campanha com o novo mês no nome, mantendo os mesmos números.</li>
+</ul>
+</body></html>

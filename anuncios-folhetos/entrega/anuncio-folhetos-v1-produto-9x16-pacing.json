@@ -1,0 +1,11 @@
+{
+ "video": "../entrega/anuncio-folhetos-v1-produto-9x16.mp4",
+ "duration": 38.0,
+ "change_steps": 339,
+ "longest_gap_s": 0.8,
+ "dead_gaps": [],
+ "hard_cuts": [],
+ "too_short_shots": [],
+ "flashes": [],
+ "pass": true
+}
